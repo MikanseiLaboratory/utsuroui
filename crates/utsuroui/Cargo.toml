@@ -1,0 +1,39 @@
+[package]
+name = "utsuroui"
+description = "Dirty-rect embedded GUI for 240x320 SPI TFTs on RP2040/RP2350 (no_std, no-alloc, Embassy-friendly)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+readme.workspace = true
+authors.workspace = true
+keywords = ["embedded", "gui", "no-std", "display", "dirty-rect"]
+categories = ["embedded", "no-std", "graphics"]
+
+[features]
+default = []
+# Adapter for `lcd-async` panels (`BandSink` implementation, model helpers).
+lcd = ["dep:lcd-async", "dep:embedded-hal"]
+# Embassy `ui_task` frame scheduler (embassy-sync / embassy-time / embassy-futures).
+embassy = ["dep:embassy-sync", "dep:embassy-time", "dep:embassy-futures"]
+# Optional U8g2 font backend. Fonts carry their own licenses; the demo and the
+# firmware use the embedded-graphics fonts only.
+u8g2 = ["dep:u8g2-fonts"]
+# Full-frame render helpers (render a whole screen once, then send it in bands).
+full-fb = []
+
+[dependencies]
+embedded-graphics.workspace = true
+embedded-hal = { workspace = true, optional = true }
+lcd-async = { workspace = true, optional = true }
+u8g2-fonts = { workspace = true, features = ["embedded_graphics_textstyle"], optional = true }
+embassy-sync = { workspace = true, optional = true }
+embassy-time = { workspace = true, optional = true }
+embassy-futures = { workspace = true, optional = true }
+
+[dev-dependencies]
+pollster.workspace = true
+
+[lints]
+workspace = true

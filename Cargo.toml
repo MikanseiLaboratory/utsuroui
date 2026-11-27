@@ -1,0 +1,60 @@
+[workspace]
+resolver = "3"
+members = ["crates/utsuroui", "crates/utsuroui-demo", "examples/pico-tft"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/MikanseiLaboratory/utsuroui"
+readme = "README.md"
+authors = ["MikanseiLaboratory"]
+
+[workspace.dependencies]
+utsuroui = { path = "crates/utsuroui", version = "0.1.0", default-features = false }
+utsuroui-demo = { path = "crates/utsuroui-demo", version = "0.1.0" }
+
+embedded-graphics = { version = "0.8.2", default-features = false }
+lcd-async = "0.1.3"
+u8g2-fonts = "0.9.1"
+
+embassy-sync = "0.8"
+embassy-time = { version = "0.5.1", default-features = false }
+embassy-futures = "0.1.2"
+embassy-rp = { version = "0.10.0", default-features = false }
+embassy-executor = "0.10.0"
+
+embedded-hal = "1.0"
+embedded-hal-async = "1.0"
+embedded-hal-bus = { version = "0.3", features = ["async"] }
+
+static_cell = "2.1"
+cortex-m = "0.7.7"
+cortex-m-rt = "0.7"
+defmt = "1"
+defmt-rtt = "1"
+panic-probe = "1"
+critical-section = "1"
+portable-atomic = { version = "1", features = ["critical-section"] }
+
+png = "0.18"
+pollster = "0.4"
+
+[workspace.lints.rust]
+# Everything in this repository is written without `unsafe`; the firmware
+# example opts out where the chip's entry points require it.
+unsafe_code = "deny"
+
+[workspace.lints.clippy]
+module_name_repetitions = "allow"
+
+[profile.release]
+opt-level = "s"
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+debug = 2
+
+[profile.dev]
+panic = "abort"
