@@ -1,4 +1,4 @@
-//! Linker setup for the Iryx SW-00 board (RP2040 + W5500-EVB-Pico).
+//! Linker setup for the animation showcase firmware (RP2040).
 //!
 //! The 256-byte second-stage bootloader lives at `0x10000000`, so flash starts
 //! at `0x10000100`; `link-rp.x` (emitted by `embassy-rp`) places `.boot2`.
@@ -18,12 +18,12 @@ MEMORY {
 fn main() {
     assert!(
         env::var_os("CARGO_FEATURE_RP2040").is_some(),
-        "enable the `rp2040` feature (SW-00 is an RP2040 board)"
+        "enable the `rp2040` feature"
     );
     let target = env::var("TARGET").unwrap_or_default();
     assert_eq!(
         target, "thumbv6m-none-eabi",
-        "SW-00 firmware must be built for thumbv6m-none-eabi (got {target})"
+        "this firmware must be built for thumbv6m-none-eabi (got {target})"
     );
 
     let out = PathBuf::from(env::var("OUT_DIR").expect("OUT_DIR"));

@@ -7,7 +7,7 @@
 > 本文中の「クレート名は未定」「`ui` モジュール」は、実装では `utsuroui` クレートに対応する。
 > 付属の型スケッチ `sketch/` は実装に移植済みで、このリポジトリには含めていない。
 
-- 対象: lagbuster 系の 2 ボタン機器。240×320 RGB565 の SPI TFT（ST7789 / ILI9341）、Embassy、RP2040 / RP2350
+- 対象: 2 ボタン構成の小規模機器。240×320 RGB565 の SPI TFT（ST7789 / ILI9341）、Embassy。MCU 非依存で、検証済みの実機は RP2040 / RP2350
 - 日付: 2026-11-28（Asia/Tokyo）
 - 位置づけ: **実装用ドキュメント**。この文書と、同ディレクトリの `sketch/` にあるトレイトスケッチがあれば、クレートの骨格を書き始められることを目指す
 - 提案 API は未公開の設計案であり、既存クレートのインターフェースではない
@@ -25,10 +25,10 @@ Buoyant はフォークしない。借りるのは「値が変わったときだ
 - `no_std`、原則アロケーションなし（`alloc` は任意フィーチャに閉じる）
 - 商用製品にそのまま使えるライセンス。依存は MIT または Apache-2.0 に限定する。GPL や、組み込み製品を無償対象外にするライセンスは入れない
 - Embassy の async タスクとして動く。描画の長い同期処理で executor を占有しない
-- 同一コードが RP2040（SRAM 264 KB、Cortex-M0+、FPU なし）と RP2350（SRAM 520 KB、Cortex-M33、FPU あり）でビルドできる
+- 同一コードが複数の MCU でビルドできる。HAL に依存せず、`embedded-graphics` と Embassy があれば載る（検証済み: RP2040 = SRAM 264 KB・Cortex-M0+・FPU なし、RP2350 = SRAM 520 KB・Cortex-M33・FPU あり）
 - ディスプレイは 240×320、RGB565、SPI、ドライバ IC は ST7789 または ILI9341。転送は `lcd-async` 0.1.3 の矩形書き込みを正面から使う
 - 描画プリミティブは `embedded-graphics` 0.8 と相互運用できる
-- lagbuster 風の平坦な UI: メニュー、黄色いハイライトバー、ビットマップフォント、矩形と文字で組む図、`31.2 ms` のようなライブ数値、棒グラフ
+- 平坦な UI: メニュー、黄色いハイライトバー、ビットマップフォント、矩形と文字で組む図、`31.2 ms` のようなライブ数値、棒グラフ
 - ハイライトのスライド、画面のスライド / フェード、数値の tween を、dirty-rect の部分更新で滑らかに出す
 - 入力は物理ボタン少数（典型は 2 ボタン）。ロータリーエンコーダとタッチは任意
 - 入力遅延計測器として使う場合、UI は計測タイミングを乱さない。計測は core1（または割り込み）に隔離する
@@ -72,7 +72,7 @@ Buoyant はフォークしない。借りるのは「値が変わったときだ
 | must | `lcd-async` の矩形書き込み（`show_raw_data`） | 検証済みの async API。全面 FB 前提のドキュメントだが、矩形 API が先にある |
 | must | RP2040 ではストライプ（帯）バッファ（二重化はバッファ配置として先に確保） | 全面 FB は 153,600 B。RP2040 に載せると残りが苦しい。二重全面は物理的に入らない（§3）。描画と DMA の真のオーバーラップは should / later（§2） |
 | must | 固定小数点 tween + イージング LUT | M0+ に FPU がない。ハイライト移動と数値変化に必要 |
-| must | 2 ボタンのフォーカス巡回（next / select、戻るは長押しまたは 3 ボタン目） | lagbuster の操作系 |
+| must | 2 ボタンのフォーカス巡回（next / select、戻るは長押しまたは 3 ボタン目） | 小規模機器の標準的な操作系 |
 | must | 矩形塗り、1 px 線、ビットマップフォント、alloc なし数値整形 | UI の見た目の最小集合 |
 | must | enum 画面ルータと、フェード / スライドの画面遷移（遷移は should でも、フックは must） | 画面が複数ある前提。見た目の滑らかさは次段でも、状態遷移は最初から入れる |
 | must | Embassy タスク分離と、計測を core1 へ隔離する指針 | 入力遅延計測器では UI が計測を汚してはならない |
@@ -87,7 +87,7 @@ Buoyant はフォークしない。借りるのは「値が変わったときだ
 | later | ロータリーエンコーダ、タッチヒットテスト | 入力モデルに枠だけ先に作っておき、実装は後 |
 | later | 角丸矩形、4bpp アンチエイリアスフォント、アイコン RLE | 見た目の磨き。MVP の 1 px 枠と mono フォントで足りる |
 | later | スプリング物理 | 固定小数点でも書けるが状態が増える。ease で十分なら後回し |
-| later | 本格 Flex / グリッド、仮想化リスト | lagbuster 規模の固定メニューには不要 |
+| later | 本格 Flex / グリッド、仮想化リスト | 固定メニューの規模なら不要 |
 | later | PIO による高速 SPI、または `lcd-async` の 8080 パラレル | 全面アニメの fps を上げたいとき。モジュールと配線次第 |
 | later | パネル側 vertical scroll（`set_vertical_scroll_offset`） | `lcd-async` にあるが、向きと固定領域の制約が大きく、汎用遷移には使いにくい |
 | later | `alloc` フィーチャでの動的リスト | デバッグやホスト専用に閉じる |
@@ -465,7 +465,7 @@ RP2040 / RP2350 の PIO で SPI を自前実装すると、クロックや連続
 
 1 px の線は、水平なら高さ 1 の `fill_solid`、垂直なら幅 1。斜め線は MVP では不要。点線も later。
 
-角丸矩形は later。必要なら `embedded-graphics` の `RoundedRectangle` をストライプにクリップして描く。デフォルトのクロム（ボタン形状）には使わない。lagbuster は 1 px の灰色枠と塗りつぶしで足りている。
+角丸矩形は later。必要なら `embedded-graphics` の `RoundedRectangle` をストライプにクリップして描く。デフォルトのクロム（ボタン形状）には使わない。この規模の UI なら 1 px の灰色枠と塗りつぶしで足りる。
 
 ### 5.2 ビットマップとアイコン
 
@@ -479,7 +479,7 @@ RP2040 / RP2350 の PIO で SPI を自前実装すると、クロックや連続
 
 優先順:
 
-1. **MVP**: `embedded-graphics` 0.8 付属のモノスペースビットマップ（`FONT_6X10`、`FONT_10X20` など）。ライセンスはクレートと同じ MIT OR Apache-2.0。lagbuster のギザギザした文字に近い
+1. **MVP**: `embedded-graphics` 0.8 付属のモノスペースビットマップ（`FONT_6X10`、`FONT_10X20` など）。ライセンスはクレートと同じ MIT OR Apache-2.0。小さなパネルでも読みやすい
 2. **should**: [`u8g2-fonts`](https://github.com/Finomnis/u8g2-fonts)。レンダラ（クレートコード）は MIT OR Apache-2.0。**同梱フォントは U8g2 由来で、フォントごとにライセンスが違う**。[U8g2 の LICENSE](https://github.com/olikraus/u8g2/blob/master/LICENSE) と [フォントグループ wiki](https://github.com/olikraus/u8g2/wiki/fntgrp) を、採用するフォントごとに読む。Adobe X11 由来は著作権表示が必要。OFL のものもある。商用製品にバンドルする前に表を残す
 3. **later**: ビルド時に使う文字列から 1 bpp / 4 bpp を焼く自前フォント。日本語はこの経路が本命
 
@@ -532,7 +532,7 @@ R は 5 bit、G は 6 bit、B は 5 bit のまま計算する（`sketch/src/colo
 | 完全な retained 木をヒープで作る | 採用しない | alloc が要る。動的な insert/remove は本 UI にほとんどない |
 | **静的合成 retained（本設計）** | 採用 | 画面はコンパイル時に型で組める。State は画面と同寿命。tween はプロパティ単位。dirty は境界の union |
 
-ウィジェット値（`LagMenu { items: ... }`）は記述子で、毎フレームスタックに作ってよい。保持するのは `State` だけ。アニメーションは「新旧の描画ツリーを補間する」のではなく、「`highlight_y: Tween` のようなスカラーを補間し、その結果で描く」。
+ウィジェット値（`Menu { items: ... }`）は記述子で、毎フレームスタックに作ってよい。保持するのは `State` だけ。アニメーションは「新旧の描画ツリーを補間する」のではなく、「`highlight_y: Tween` のようなスカラーを補間し、その結果で描く」。
 
 ### 6.2 トレイト（提案 API）
 
@@ -576,7 +576,7 @@ pub struct Background<W> { pub inner: W, pub color: Rgb565 }
 
 リストは次のどちらか。
 
-- 固定 `&'static [&'static str]`（lagbuster のメニューに十分）
+- 固定 `&'static [&'static str]`（固定メニューには十分）
 - `heapless::Vec<T, N>` または `[T; N]`。`N` はコンパイル時定数
 
 ウィジェット trait object（`dyn Widget`）は MVP では使わない。画面は `enum` で静的に分岐する（§11）。
@@ -603,7 +603,7 @@ MVP の機能:
 1. `measure(max)` が希望サイズを返す。子は親の max を受けて自分の希望を返す。テキストは折り返さないので、測るコストは項目数に線形
 2. `arrange(bounds)` が実座標を `State` に書く
 
-コストの上限（目標であり未実測）: lagbuster 規模（項目 10 個未満、深さ 3 以下）の measure + arrange は 1 ms 未満を目指す。再レイアウトは「画面初期化」「フォーカス数の変化」「画面サイズ変化」のときだけで、毎フレームはやらない。アニメで動くのは既に arrange された座標の上の tween 値（例: ハイライト Y）に限る。
+コストの上限（目標であり未実測）: 項目 10 個未満・深さ 3 以下程度の UI で、measure + arrange は 1 ms 未満を目指す。再レイアウトは「画面初期化」「フォーカス数の変化」「画面サイズ変化」のときだけで、毎フレームはやらない。アニメで動くのは既に arrange された座標の上の tween 値（例: ハイライト Y）に限る。
 
 例外: 画面スライドは画面全体のオフセット tween で、子を再レイアウトしない。
 
@@ -742,7 +742,7 @@ FRAME_BUDGET を 22 ms にしても、全面転送が 80 ms かかるクロッ�
 
 ### 10.2 2 ボタンの割り当て
 
-lagbuster 想定の既定:
+2 ボタン構成の既定:
 
 | 物理入力 | Event | 意味 |
 |---|---|---|
@@ -775,7 +775,7 @@ lagbuster 想定の既定:
 
 ```rust
 enum Screen {
-    Menu(LagMenuState),
+    Menu(MenuState),
     Measure(MeasureState),
     Settings(SettingsState),
     About,
@@ -930,7 +930,7 @@ async fn ui_task(
 
 ## 14. API 例（提案設計であり、既存クレートではない）
 
-次のコードは **本設計の提案 API** で、lagbuster 風の 2 ボタンメニュー、ハイライトのスライド、ライブの `31.2 ms` と棒グラフを一つの画面に載せる例である。公開されているライブラリのサンプルではない。型の骨格は `sketch/src/example.rs` にある。
+次のコードは **本設計の提案 API** で、2 ボタンメニュー、ハイライトのスライド、ライブの `31.2 ms` と棒グラフを一つの画面に載せる例である。公開されているライブラリのサンプルではない。型の骨格は `sketch/src/example.rs` にある。
 
 ```rust
 // 提案 API の使用例（未実装のクレートを想像して書いている）
@@ -940,8 +940,8 @@ const ROW_H: u16 = 28;
 const HIGHLIGHT_US: u32 = 120_000;
 const SCREEN: Rect = Rect::new(0, 0, 240, 320);
 
-struct LagMenu;
-struct LagMenuState {
+struct Menu;
+struct MenuState {
     focus: Focus,
     highlight_y: Tween,
     /// 31.2 ms を 312 として持つ
@@ -949,7 +949,7 @@ struct LagMenuState {
     bounds: Rect,
 }
 
-impl Default for LagMenuState {
+impl Default for MenuState {
     fn default() -> Self {
         Self {
             focus: Focus::new(ITEMS.len() as u8), // 起動時から index 0
@@ -960,7 +960,7 @@ impl Default for LagMenuState {
     }
 }
 
-impl LagMenuState {
+impl MenuState {
     fn row_y(index: u8) -> i32 {
         index as i32 * ROW_H as i32
     }
@@ -1181,4 +1181,4 @@ Git リポジトリの作成や push は、この文書の作業範囲には含�
 
 ## 付録 B. この文書とスケッチの関係
 
-`sketch/` は公開クレートではなく、本設計のトレイトと dirty-rect、tween、lagbuster 風メニューの型が、`no_std` の Cortex-M0+ ターゲットで通ることを確認するための砂場である。製品コードをここに続けて書く必要はない。実装を始めるときは新しいクレートを切り、この文書のモジュール割りに沿って移植すればよい。
+`sketch/` は公開クレートではなく、本設計のトレイトと dirty-rect、tween、メニューの型が、`no_std` の Cortex-M0+ ターゲットで通ることを確認するための砂場である。製品コードをここに続けて書く必要はない。実装を始めるときは新しいクレートを切り、この文書のモジュール割りに沿って移植すればよい。

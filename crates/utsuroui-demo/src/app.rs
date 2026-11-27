@@ -380,7 +380,7 @@ impl App for DemoApp {
             dirty.add(self.measure.dirty_rect());
             animating = true;
         }
-        if self.shown_x10.is_running(now_us) {
+        if self.shown_x10.poll(now_us) {
             dirty.add(READOUT_RECT);
             animating = true;
         }

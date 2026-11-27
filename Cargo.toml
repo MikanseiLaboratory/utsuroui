@@ -3,7 +3,8 @@ resolver = "3"
 members = [
     "crates/utsuroui",
     "crates/utsuroui-demo",
-    "examples/iryx-sw00",
+    "examples/anim-showcase",
+    "examples/spi1-panel",
     "examples/pico-tft",
 ]
 

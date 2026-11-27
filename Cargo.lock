@@ -18,6 +18,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "anim-showcase"
+version = "0.1.0"
+dependencies = [
+ "cortex-m",
+ "cortex-m-rt",
+ "critical-section",
+ "defmt",
+ "defmt-rtt",
+ "embassy-executor",
+ "embassy-rp",
+ "embassy-sync",
+ "embassy-time",
+ "embedded-hal-async",
+ "embedded-hal-bus",
+ "lcd-async",
+ "panic-probe",
+ "portable-atomic",
+ "static_cell",
+ "utsuroui",
+]
+
+[[package]]
 name = "arrayvec"
 version = "0.7.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -810,29 +832,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "iryx-sw00"
-version = "0.1.0"
-dependencies = [
- "cortex-m",
- "cortex-m-rt",
- "critical-section",
- "defmt",
- "defmt-rtt",
- "embassy-executor",
- "embassy-rp",
- "embassy-sync",
- "embassy-time",
- "embedded-hal-async",
- "embedded-hal-bus",
- "lcd-async",
- "panic-probe",
- "portable-atomic",
- "static_cell",
- "utsuroui",
- "utsuroui-demo",
-]
-
-[[package]]
 name = "itertools"
 version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1334,6 +1333,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8af65855c40b2c35079514c5489abffc0429347fef25d8467ff98ad84b4322d3"
 dependencies = [
  "cortex-m",
+ "cortex-m-rt",
 ]
 
 [[package]]
@@ -1461,6 +1461,29 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a7f4441a131924d58da6b83a7ad765c460e64630cce504376c3a87a2558c487f"
 dependencies = [
  "rgb",
+]
+
+[[package]]
+name = "spi1-panel"
+version = "0.1.0"
+dependencies = [
+ "cortex-m",
+ "cortex-m-rt",
+ "critical-section",
+ "defmt",
+ "defmt-rtt",
+ "embassy-executor",
+ "embassy-rp",
+ "embassy-sync",
+ "embassy-time",
+ "embedded-hal-async",
+ "embedded-hal-bus",
+ "lcd-async",
+ "panic-probe",
+ "portable-atomic",
+ "static_cell",
+ "utsuroui",
+ "utsuroui-demo",
 ]
 
 [[package]]

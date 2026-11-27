@@ -73,10 +73,9 @@
 | example | 基板 | パネル / バス | キー |
 |---|---|---|---|
 | `examples/pico-tft` | Pico / Pico 2 | 240×320 ST7789 / SPI0 | 2 ボタン（GP14/15） |
-| `examples/iryx-sw00` | Iryx SW-00（W5500-EVB-Pico） | 240×320 ST7789（反転）/ **SPI1** | MENU GP8 / MARK IN GP9 / INPUT1 GP1 / BACK GP26 |
+| `examples/spi1-panel` | GPIO 配線のみ（基板非依存） | 240×320 ST7789（反転）/ **SPI1** | MENU GP8 / PREV GP9 / INPUT1 GP1 / BACK GP26 |
 
-SW-00 のピン割り当ては `iryx` の旧 `switcher` ファームウェア
-（commit `fd992f7^`、`pico/src/bin/switcher.rs`）に合わせた。詳細は
+ピン割り当ては上表の GPIO のとおり。詳細は
 [HARDWARE.md](HARDWARE.md) と各 example の README。
 
 ## 6. 型スケッチ `sketch/` の扱い

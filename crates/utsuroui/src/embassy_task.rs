@@ -108,14 +108,32 @@ where
         flush(app, sink, &dirty, now_us, band_a, Some(band_b), &cfg.render).await?;
         dirty.clear();
 
+        // Input that arrived while the bands were being painted is handled
+        // right away. Sleeping first would add the whole frame budget to the
+        // response time of every button press.
+        let after_flush = embassy_time::Instant::now().as_micros();
+        while let Ok(event) = events.try_receive() {
+            app.event(&event, after_flush, &mut dirty);
+        }
+        if !dirty.is_empty() {
+            continue;
+        }
+
         if animating {
-            if let Some(deadline) = app.next_wakeup_us() {
-                let now = embassy_time::Instant::now().as_micros();
-                if deadline > now {
-                    Timer::after(Duration::from_micros(deadline - now)).await;
+            // One deadline for the next frame: the frame budget counted from the
+            // start of this frame, or the next tween end if that is sooner. The
+            // wait ends early when a button is pressed.
+            let mut deadline = now_us.saturating_add(cfg.frame_budget_us as u64);
+            if let Some(wakeup) = app.next_wakeup_us() {
+                deadline = deadline.min(wakeup);
+            }
+            let now = embassy_time::Instant::now().as_micros();
+            if deadline > now {
+                let timer = Timer::after(Duration::from_micros(deadline - now));
+                if let Either::First(event) = select(events.receive(), timer).await {
+                    app.event(&event, embassy_time::Instant::now().as_micros(), &mut dirty);
                 }
             }
-            Timer::after(Duration::from_micros(cfg.frame_budget_us as u64)).await;
         }
     }
 }

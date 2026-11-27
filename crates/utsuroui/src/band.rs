@@ -12,6 +12,23 @@ use crate::color::{Rgb565, raw_u16};
 use crate::geom::Rect;
 
 /// A destination for finished RGB565 bands.
+///
+/// This is the only boundary between the renderer and the hardware. The
+/// renderer never names a bus, a DMA channel or a HAL: it paints one band into
+/// RAM and awaits [`BandSink::write_band`]. Implement it for an SPI panel
+/// (the bundled `lcd` adapter for `lcd-async`, which drives the transfer with
+/// DMA inside the HAL), for a parallel 8080 bus, for a USB display, or for an
+/// in-memory buffer like [`MemorySink`].
+///
+/// # Contract
+///
+/// * `data` is `band.w * band.h * 2` bytes of big-endian RGB565, row-major,
+///   exactly covering `band`.
+/// * The future must not resolve until `data` may be overwritten again. A sink
+///   that hands the buffer to a DMA engine therefore waits for the transfer to
+///   finish (that is what `lcd-async` does), or copies the band first.
+/// * `write_band` is awaited serially, once per band; painting the next band
+///   starts only after it resolves.
 pub trait BandSink {
     /// Transport error type.
     type Error: core::fmt::Debug;

@@ -1,6 +1,6 @@
 //! # utsuroui-demo
 //!
-//! A lagbuster-style two-button demo application for [`utsuroui`], shared by the
+//! A two-button demo application for [`utsuroui`], shared by the
 //! host golden-image tests, the PNG screenshot tool and the RP2040/RP2350
 //! firmware example.
 //!

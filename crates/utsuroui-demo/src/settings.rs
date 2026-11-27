@@ -154,7 +154,7 @@ impl SettingsState {
 
     /// Advances the highlight tween.
     pub fn tick(&mut self, now_us: u64) -> bool {
-        self.highlight_y.is_running(now_us)
+        self.highlight_y.poll(now_us)
     }
 
     /// Paints the settings rows.

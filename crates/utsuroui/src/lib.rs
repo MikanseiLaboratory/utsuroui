@@ -1,7 +1,13 @@
 //! # utsuroui
 //!
 //! A small, allocation-free GUI for 240x320 RGB565 SPI TFTs (ST7789 / ILI9341)
-//! running on RP2040 / RP2350 under Embassy.
+//! on any Embassy target that can drive a display and provide timers.
+//!
+//! The core has no HAL dependency: it needs `embedded-graphics` for drawing and,
+//! for the task scheduler, `embassy-sync` / `embassy-time`. Only the example
+//! firmwares pick an MCU (RP2040/RP2350); the framework itself is portable. The
+//! `lcd` feature adds an `lcd-async` sink, and any other panel wrapper only has
+//! to implement [`band::BandSink`].
 //!
 //! The framework is built around three ideas:
 //!

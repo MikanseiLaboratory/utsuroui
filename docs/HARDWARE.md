@@ -1,12 +1,16 @@
 # ハードウェアと実機での確認
 
-ファームウェアは 2 本ある。ピン割り当ては基板ごとに違うので、必ず対応する
-example の README と `src/panel.rs` を確認すること。
+ファームウェアは 3 本ある。ピン割り当ては配線ごとに違うので、必ず対応する
+example の README と `src/panel.rs` を確認すること。`examples/anim-showcase`
+は `examples/spi1-panel` と同じ配線を使う。
 
-| example | 基板 | パネル | バス |
+| example | 想定ハード | パネル | バス |
 |---|---|---|---|
 | `examples/pico-tft` | Raspberry Pi Pico / Pico 2 | 240×320 ST7789 | SPI0 |
-| `examples/iryx-sw00` | Iryx SW-00（W5500-EVB-Pico） | 240×320 ST7789（反転） | **SPI1** |
+| `examples/spi1-panel` | GPIO を下記のとおり配線した機器 | 240×320 ST7789（反転） | **SPI1** |
+
+`spi1-panel` は特定の基板を前提にしない。必要なのは下の GPIO を揃えることだけで、
+他のピンや周辺チップには触らない。
 
 ## Pico / Pico 2（`examples/pico-tft`）
 
@@ -31,10 +35,7 @@ example の README と `src/panel.rs` を確認すること。
   バイト順（ビッグエンディアン）は `lcd-async` と一致しているので、
   症状が「色化け」だけなら MADCTL / BGR 側が原因。
 
-## Iryx SW-00（`examples/iryx-sw00`）
-
-ピン割り当ては SW-00 の元ファームウェア（`iryx` commit `fd992f7^`、
-`pico/src/bin/switcher.rs`）に合わせている。
+## SPI1 パネル + 8 キー（`examples/spi1-panel`）
 
 ### ディスプレイ（ST7789 240×320、反転、SPI1）
 
@@ -48,19 +49,19 @@ example の README と `src/panel.rs` を確認すること。
 | RST | GP27 |
 | BL | GP28 |
 
-SPI1 を **50 MHz**（SW-00 ファームウェアの `SPI_FREQUENCY`）で使う。
-`panel::SPI_HZ` で変更できる。SPI0 の W5500（GP16–GP21）はこの example では触らない。
+SPI1 を最大 **62.5 MHz**（`clk_peri` / 2）で使う。`panel::SPI_HZ` で変更でき、
+ノイズや色ずれが出る場合は 50 MHz に落とす。
 
 ### フロントパネルキー（GND 短絡、プルアップ）
 
 | キー | GPIO | デモでの動作 |
 |---|---|---|
 | MENU | GP8 | 次へ（リピートあり） |
-| MARK IN | GP9 | 前へ（リピートあり） |
+| PREV | GP9 | 前へ（リピートあり） |
 | INPUT 1 | GP1 | 決定 |
 | BACK | GP26 | 戻る |
 
-未使用のキー: INPUT 2–4 = GP2–GP4、MARK OUT = GP10、SHIFT = GP15。
+未使用のキー: INPUT 2–4 = GP2–GP4、NEXT = GP10、SHIFT = GP15。
 LED（GP25）は UI 起動後に High。
 
 ## SPI クロック
@@ -87,9 +88,9 @@ cargo build -p pico-tft --release --no-default-features --features rp235xa \
     --target thumbv8m.main-none-eabihf
 cd examples/pico-tft && probe-rs run --chip RP235x
 
-# Iryx SW-00（RP2040、SPI1）
-cargo build -p iryx-sw00 --release --target thumbv6m-none-eabi
-cd examples/iryx-sw00 && probe-rs run --chip rp2040
+# SPI1 パネル + キー（RP2040）
+cargo build -p spi1-panel --release --target thumbv6m-none-eabi
+cd examples/spi1-panel && probe-rs run --chip rp2040
 
 # TE 待ちを有効にする（TE を GP22 に配線した場合のみ）
 cargo build -p pico-tft --release --features te --target thumbv6m-none-eabi

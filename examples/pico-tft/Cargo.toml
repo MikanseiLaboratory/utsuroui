@@ -32,8 +32,8 @@ portable-atomic.workspace = true
 
 [features]
 default = ["rp2040"]
-rp2040 = ["embassy-rp/rp2040", "embassy-rp/time-driver", "embassy-rp/critical-section-impl"]
-rp235xa = ["embassy-rp/rp235xa", "embassy-rp/time-driver", "embassy-rp/critical-section-impl"]
+rp2040 = ["embassy-rp/rp2040", "embassy-rp/rt", "embassy-rp/time-driver", "embassy-rp/critical-section-impl"]
+rp235xa = ["embassy-rp/rp235xa", "embassy-rp/rt", "embassy-rp/time-driver", "embassy-rp/critical-section-impl"]
 te = []
 crossfade = []
 

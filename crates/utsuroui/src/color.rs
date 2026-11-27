@@ -2,7 +2,7 @@
 //!
 //! The framework uses [`embedded_graphics`]'s [`Rgb565`] as its colour type so
 //! that drawing primitives and images interoperate without conversions. The
-//! helpers here are integer-only and safe on a Cortex-M0+.
+//! helpers here are integer-only and safe on cores without an FPU.
 
 use embedded_graphics::pixelcolor::RgbColor;
 use embedded_graphics::pixelcolor::raw::{RawData, RawU16};
@@ -13,7 +13,7 @@ pub use embedded_graphics::pixelcolor::Rgb565;
 pub const BLACK: Rgb565 = Rgb565::new(0, 0, 0);
 /// Pure white.
 pub const WHITE: Rgb565 = Rgb565::new(31, 63, 31);
-/// lagbuster-style highlight yellow.
+/// Highlight yellow used by the demo application.
 pub const YELLOW: Rgb565 = Rgb565::new(31, 63, 0);
 /// Background grey used for panels.
 pub const DARK_GRAY: Rgb565 = Rgb565::new(4, 8, 4);

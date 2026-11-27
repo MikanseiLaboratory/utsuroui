@@ -1,7 +1,7 @@
 //! Integer geometry for the UI.
 //!
 //! The framework deliberately uses `i16`/`u16` coordinates instead of the
-//! `i32`/`u32` of `embedded-graphics`: on a Cortex-M0+ every multiplication and
+//! `i32`/`u32` of `embedded-graphics`: on a small core every multiplication and
 //! clamp matters, and a 240x320 panel never needs more than a few hundred
 //! pixels. Conversion to `embedded-graphics` types happens at the draw calls.
 

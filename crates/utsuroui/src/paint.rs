@@ -115,7 +115,16 @@ impl PaintCx<'_> {
     }
 
     /// Draws `text` with its top-left corner at `pos`.
+    ///
+    /// Text that does not intersect the clip rectangle is skipped without
+    /// touching the glyph bitmaps. `embedded-graphics` reports one pixel at a
+    /// time, so drawing invisible text is otherwise paid for on every band.
     pub fn text(&mut self, text: &str, pos: Point, style: TextStyle, color: Rgb565) {
+        let bounds = text_util::measure(text, style);
+        let rect = Rect::new(pos.x, pos.y, bounds.w, bounds.h);
+        if rect.intersect(self.target.clip).is_none() {
+            return;
+        }
         let character_style = MonoTextStyle::new(style.font(), color);
         let text_style = EgTextStyle::with_baseline(Baseline::Top);
         let _ = Text::with_text_style(text, pos.to_eg(), character_style, text_style)
@@ -271,12 +280,19 @@ impl BandTarget<'_> {
         let x_start = (clipped.x - self.origin.x) as usize;
         let y_start = (clipped.y - self.origin.y) as usize;
         let width = clipped.w as usize;
+        // Two pixels per store: the band buffer is byte-addressable, but a fill
+        // is the hot path during a full-band repaint, so write 32-bit quads.
+        let quad = [bytes[0], bytes[1], bytes[0], bytes[1]];
         for row in 0..clipped.h as usize {
             let base = (y_start + row) * self.row_bytes + x_start * 2;
-            let dst = &mut self.buf[base..base + width * 2];
-            for px in dst.chunks_exact_mut(2) {
-                px[0] = bytes[0];
-                px[1] = bytes[1];
+            let len = width * 2;
+            let dst = &mut self.buf[base..base + len];
+            let (full, tail) = dst.split_at_mut(len & !3);
+            for word in full.chunks_exact_mut(4) {
+                word.copy_from_slice(&quad);
+            }
+            if tail.len() == 2 {
+                tail.copy_from_slice(&bytes);
             }
         }
     }

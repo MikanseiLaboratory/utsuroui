@@ -106,9 +106,9 @@ impl MenuState {
             .retarget(now_us, Self::row_y(self.focus.index()), ROW_HIGHLIGHT_US);
     }
 
-    /// Advances the highlight tween; returns whether it is still moving.
+    /// Advances the highlight tween; returns whether a frame must be painted.
     pub fn tick(&mut self, now_us: u64) -> bool {
-        self.highlight_y.is_running(now_us)
+        self.highlight_y.poll(now_us)
     }
 
     /// The current menu action for the focused row.

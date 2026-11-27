@@ -17,7 +17,7 @@ HAL
 
 ファームウェア example は 2 本ある。どちらも同じコアとデモを使い、変わるのは
 パネルのバス・ピンとキーの割り当てだけ（`examples/pico-tft` は SPI0、
-`examples/iryx-sw00` は Iryx SW-00 の SPI1 と 8 キー基板）。
+`examples/spi1-panel` は SPI1 と 8 キーの配線例）。
 
 コアは HAL に依存しない。`lcd` feature のときだけ `lcd-async` をリンクし、
 境界は `BandSink::write_band` 1 メソッドだけ。ホストでは `MemorySink` が
@@ -98,7 +98,7 @@ sequenceDiagram
 ホスト（macOS）で測ると数十バイト違いが出るが、桁は同じ。
 `cargo build --features te` の RP2040 版は `TeSink` の分だけわずかに増える。
 
-`examples/iryx-sw00`（同じデモ、SPI1、SW-00 キー）は macOS 実測で
+`examples/spi1-panel`（同じデモ、SPI1）は macOS 実測で
 `.text` 36,256 / `.rodata` 14,080 / `.bss` 21,208 B（Flash 約 50.8 KiB /
 RAM 約 20.8 KiB）。差はパネル初期化とキー入力の分だけ。
 

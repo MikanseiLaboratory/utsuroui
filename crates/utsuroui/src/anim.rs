@@ -1,7 +1,7 @@
 //! Fixed-point tweening.
 //!
 //! Time is normalised to `Q16` (`0..=65535`) and every interpolation is done in
-//! integers, so a Cortex-M0+ never pulls in soft-float. Easing curves are
+//! integers, so a core without an FPU never pulls in soft-float. Easing curves are
 //! precomputed into 257-entry tables (one extra point for interpolation) that
 //! live in flash.
 
@@ -144,7 +144,7 @@ impl Tween {
         self.start_us = now_us;
         self.duration_us = duration_us;
         self.easing = easing;
-        self.running = from != to && duration_us > 0;
+        self.running = from != to;
     }
 
     /// Retargets a running (or settled) tween without a jump.
@@ -164,7 +164,7 @@ impl Tween {
         self.start_us = now_us;
         self.duration_us = duration_us;
         self.easing = easing;
-        self.running = current != new_to && duration_us > 0;
+        self.running = current != new_to;
     }
 
     /// Stops the animation at its current value.
@@ -190,8 +190,28 @@ impl Tween {
     }
 
     /// Whether the animation still has work to do at `now_us`.
+    ///
+    /// This goes `false` as soon as the end is reached, so a render loop must
+    /// not use it to decide whether to paint the final frame: the settled value
+    /// would never be drawn. Use [`Tween::poll`] for that.
     pub fn is_running(&self, now_us: u64) -> bool {
         self.running && now_us.saturating_sub(self.start_us) < self.duration_us as u64
+    }
+
+    /// Polls the tween for one frame, reporting whether it must be painted.
+    ///
+    /// The call that observes the end of the animation still returns `true`
+    /// once, so the renderer paints the settled value exactly once; later calls
+    /// return `false` and the loop can go idle. A zero-duration tween likewise
+    /// reports one frame, which is what makes an instant change visible.
+    pub fn poll(&mut self, now_us: u64) -> bool {
+        if !self.running {
+            return false;
+        }
+        if self.duration_us == 0 || now_us.saturating_sub(self.start_us) >= self.duration_us as u64 {
+            self.running = false;
+        }
+        true
     }
 
     /// Eased progress at `now_us` (`0..=65535`).
@@ -262,6 +282,30 @@ mod tests {
         assert!(t.is_running(99_999));
         assert!(!t.is_running(100_000));
         assert_eq!(t.end_us(), Some(100_000));
+    }
+
+    #[test]
+    fn poll_reports_the_settling_frame_exactly_once() {
+        let mut t = Tween::settled(0);
+        t.start(0, 0, 100, 100_000, Easing::Linear);
+        // Mid-animation: paint.
+        assert!(t.poll(50_000));
+        // The call that observes the end must still paint, because that frame
+        // is the first one drawn at the settled value.
+        assert!(t.poll(100_000));
+        assert!(!t.is_moving());
+        assert_eq!(t.end_us(), None);
+        // Idle afterwards: no more SPI traffic.
+        assert!(!t.poll(120_000));
+    }
+
+    #[test]
+    fn poll_reports_a_zero_duration_change_once() {
+        let mut t = Tween::settled(0);
+        t.start(0, 0, 10, 0, Easing::Linear);
+        assert_eq!(t.value_at(0), 10);
+        assert!(t.poll(0), "an instant change still needs one frame");
+        assert!(!t.poll(1));
     }
 
     #[test]

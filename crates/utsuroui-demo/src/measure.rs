@@ -76,7 +76,7 @@ impl MeasureState {
 
     /// Advances the readout tween.
     pub fn tick(&mut self, now_us: u64) -> bool {
-        self.shown_x10.is_running(now_us)
+        self.shown_x10.poll(now_us)
     }
 
     /// Rectangles that change when a sample arrives.

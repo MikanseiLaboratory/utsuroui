@@ -1,8 +1,7 @@
-//! Iryx SW-00 panel: ST7789 on SPI1.
+//! ST7789 panel on SPI1 (240x320, inverted module).
 //!
-//! Pin map taken from the SW-00 firmware (`iryx` commit `fd992f7^`,
-//! `pico/src/bin/switcher.rs`). It differs from the generic Pico example:
-//! the panel hangs off SPI1, and the module is the inverted 240x320 variant.
+//! This is the same driver as the generic Pico example; only the bus and the
+//! GPIO numbers differ. Rewire the pins below to match your own board.
 //!
 //! | Signal | GPIO |
 //! |---|---|
@@ -14,8 +13,7 @@
 //! | RST | GP27 |
 //! | BL | GP28 |
 //!
-//! The W5500 on SPI0 (GP16-GP21) is left untouched: this example draws the demo
-//! UI only.
+
 
 use embassy_rp::Peri;
 use embassy_rp::gpio::{Level, Output};
@@ -33,16 +31,16 @@ pub const WIDTH: u16 = 240;
 /// Panel height in pixels.
 pub const HEIGHT: u16 = 320;
 
-/// SPI clock used by the SW-00 firmware (`SPI_FREQUENCY = 50 MHz`).
+/// Requested SPI clock: `clk_peri` / 2 = 62.5 MHz on a 125 MHz RP2040.
 ///
-/// The SW-00 hardware has been running at this clock, so it is kept here. Drop
-/// it to 31.25 MHz if a different panel module is fitted.
-pub const SPI_HZ: u32 = 50_000_000;
+/// Drop to 50 MHz (31.25 MHz actual) if the panel shows noise or shifted
+/// pixels, and lower still for long leads.
+pub const SPI_HZ: u32 = 62_500_000;
 
-/// SW-00 uses an inverted module.
+/// The module is inverted.
 pub const INVERT: ColorInversion = ColorInversion::Inverted;
 
-/// Sub-pixel order of the SW-00 module.
+/// Sub-pixel order of the module.
 pub const COLOR_ORDER: ColorOrder = ColorOrder::Rgb;
 
 /// Panel orientation.
@@ -58,7 +56,7 @@ pub type Panel = Display<
     Output<'static>,
 >;
 
-/// Resets and initialises the SW-00 panel.
+/// Resets and initialises the panel.
 #[allow(clippy::too_many_arguments)]
 pub async fn init<IRQ>(
     spi: Peri<'static, SPI1>,

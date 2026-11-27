@@ -1,0 +1,38 @@
+[package]
+name = "spi1-panel"
+description = "240x320 ST7789 on SPI1 with an 8-key front panel"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+readme.workspace = true
+authors.workspace = true
+publish = false
+
+[dependencies]
+utsuroui = { workspace = true, features = ["lcd", "embassy"] }
+utsuroui-demo.workspace = true
+
+embassy-rp = { workspace = true, features = ["defmt"] }
+embassy-executor = { workspace = true, features = ["executor-thread", "platform-cortex-m"] }
+embassy-time.workspace = true
+embassy-sync.workspace = true
+embedded-hal-async.workspace = true
+embedded-hal-bus.workspace = true
+lcd-async.workspace = true
+static_cell.workspace = true
+cortex-m.workspace = true
+cortex-m-rt.workspace = true
+defmt.workspace = true
+defmt-rtt.workspace = true
+panic-probe = { workspace = true, features = ["print-defmt"] }
+critical-section.workspace = true
+portable-atomic.workspace = true
+
+[features]
+default = ["rp2040"]
+rp2040 = ["embassy-rp/rp2040", "embassy-rp/rt", "embassy-rp/time-driver", "embassy-rp/critical-section-impl"]
+
+[lints]
+workspace = true

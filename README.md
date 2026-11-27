@@ -3,7 +3,12 @@
 [![CI](https://github.com/MikanseiLaboratory/utsuroui/actions/workflows/ci.yml/badge.svg)](https://github.com/MikanseiLaboratory/utsuroui/actions/workflows/ci.yml)
 
 A tiny, allocation-free GUI for 240x320 RGB565 SPI TFTs (ST7789 / ILI9341) on
-RP2040 / RP2350 with Embassy.
+any Embassy target, built on `embedded-graphics`.
+
+The core depends only on `embedded-graphics` (drawing) and, for the scheduler,
+`embassy-sync` / `embassy-time`; there is no HAL in it. Bring any panel by
+implementing `BandSink`, or use the bundled `lcd-async` adapter. The example
+firmwares target RP2040 and RP2350 because that is what they were tested on.
 
 Only dirty rectangles are painted and sent, as 16-row bands. Animation is
 fixed-point tweening with continuous retargeting.
@@ -27,6 +32,9 @@ fixed-point tweening with continuous retargeting.
   crossfade (crossfade repaints the outgoing screen, so no frame snapshot).
 - **Embassy integration** — `ui_task` turns input, `Watch` samples and dirty
   rectangles into bands, then paces frames. Idle means no SPI traffic.
+- **Transport-agnostic** — the renderer only knows `BandSink`
+  (`write_band(rect, bytes).await`). SPI + DMA live behind it (`lcd-async`
+  adapter); a parallel, USB or in-memory sink needs no change to the framework.
 - **Measurement isolation** — core 1 only writes the latest sample; the UI
   throttles it to 30 Hz.
 - **Host-tested** — 8 PNG goldens, byte-order and band-splitting checks,
@@ -40,7 +48,8 @@ crates/utsuroui/      core: geom/color/dirty/anim/text, paint/band/flush,
                       widgets, router, transitions, Embassy task, lcd-async adapter
 crates/utsuroui-demo/ 240x320 demo app, golden tests, PNG screenshot tool
 examples/pico-tft/    RP2040 (SPI0) and RP2350 (feature rp235xa)
-examples/iryx-sw00/   Iryx SW-00: SPI1 panel + SW-00 front-panel keys
+examples/spi1-panel/  same demo on SPI1 with an 8-key front panel
+examples/anim-showcase/ animation demo: waveform, ticker, floating rings, spectrum
 ```
 
 ## Quick start
@@ -54,8 +63,9 @@ cargo run -p utsuroui-demo --example render_png     # target/golden/*.png
 rustup target add thumbv6m-none-eabi
 cargo build -p pico-tft --release --target thumbv6m-none-eabi
 
-# Iryx SW-00
-cargo build -p iryx-sw00 --release --target thumbv6m-none-eabi
+# SPI1 panel + keys, and the animation demo
+cargo build -p spi1-panel --release --target thumbv6m-none-eabi
+cargo build -p anim-showcase --release --target thumbv6m-none-eabi
 
 # Flash (SWD)
 cd examples/pico-tft && probe-rs run --chip rp2040
@@ -64,7 +74,7 @@ cd examples/pico-tft && probe-rs run --chip rp2040
 RP2350 / Pico 2: `cargo build -p pico-tft --release --no-default-features
 --features rp235xa --target thumbv8m.main-none-eabihf`.
 
-Pin maps and clock notes: [docs/HARDWARE.md](docs/HARDWARE.md).
+Wiring and clock notes: [docs/HARDWARE.md](docs/HARDWARE.md).
 
 ## Writing an app
 
@@ -95,10 +105,11 @@ coordinates; clipping and band translation are handled by `PaintCx`.
 
 ## Status
 
-Host-tested and cross-compiled for both MCUs; the demo firmware builds and links
-for RP2040 and RP2350. Real-hardware behaviour (SPI clock limits, stack
-watermark, frame times) has **not** been measured yet — the procedure is in
-[docs/HARDWARE.md](docs/HARDWARE.md).
+Host-tested (golden images, band splitting, dirty-rect convergence) and
+cross-compiled for RP2040 and RP2350; both demo firmwares run on hardware.
+Measured on RP2040 at 62.5 MHz SPI: a full 240x320 band flush takes ~7.9 ms, and
+the animation demo holds ~60 fps. SPI clock limits, stack watermark and frame
+times per target are in [docs/HARDWARE.md](docs/HARDWARE.md).
 
 ## Docs
 

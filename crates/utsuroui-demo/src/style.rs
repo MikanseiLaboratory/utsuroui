@@ -1,8 +1,7 @@
 //! Visual style constants for the demo application.
 //!
-//! The layout follows the lagbuster-style flat UI: a header with a one-pixel
-//! rule, 28 px menu rows, a yellow highlight bar, and a footer with a live
-//! latency readout and bar.
+//! The layout is a flat UI: a header with a one-pixel rule, 28 px menu rows, a
+//! yellow highlight bar, and a footer with a live latency readout and bar.
 
 use utsuroui::color::{GRAY, Rgb565, YELLOW};
 use utsuroui::geom::Rect;
@@ -36,7 +35,7 @@ pub const BAR_Y: i16 = 288;
 pub const BAR_H: u16 = 14;
 
 /// Title shown on the menu screen.
-pub const TITLE: &str = "LAG MONITOR";
+pub const TITLE: &str = "UTSUROUI";
 /// Version shown on the about screen.
 pub const VERSION: &str = "0.1.0";
 

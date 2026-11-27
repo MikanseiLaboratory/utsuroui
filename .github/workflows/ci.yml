@@ -97,13 +97,13 @@ jobs:
           cargo clippy -p pico-tft --release --target thumbv6m-none-eabi -- -D warnings
           cargo clippy -p pico-tft --release --no-default-features --features rp235xa \
             --target thumbv8m.main-none-eabihf -- -D warnings
-          cargo clippy -p iryx-sw00 --release --target thumbv6m-none-eabi -- -D warnings
+          cargo clippy -p spi1-panel --release --target thumbv6m-none-eabi -- -D warnings
 
       - name: Build firmware (RP2040)
         run: cargo build -p pico-tft --release --target thumbv6m-none-eabi
 
-      - name: Build firmware (Iryx SW-00)
-        run: cargo build -p iryx-sw00 --release --target thumbv6m-none-eabi
+      - name: Build firmware (SPI1 panel + keys)
+        run: cargo build -p spi1-panel --release --target thumbv6m-none-eabi
 
       - name: Build firmware (RP2350)
         run: |
@@ -117,8 +117,8 @@ jobs:
           "$SIZE" -A target/thumbv6m-none-eabi/release/pico-tft
           echo "== RP2350 =="
           "$SIZE" -A target/thumbv8m.main-none-eabihf/release/pico-tft
-          echo "== Iryx SW-00 =="
-          "$SIZE" -A target/thumbv6m-none-eabi/release/iryx-sw00
+          echo "== SPI1 panel =="
+          "$SIZE" -A target/thumbv6m-none-eabi/release/spi1-panel
 
       - name: Build firmware with TE gate
         run: cargo build -p pico-tft --release --features te --target thumbv6m-none-eabi
