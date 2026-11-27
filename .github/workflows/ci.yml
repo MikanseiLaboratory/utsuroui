@@ -1,0 +1,117 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  host:
+    name: Host / lint / golden
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: "1.91.1"
+          components: rustfmt, clippy, llvm-tools-preview
+          targets: thumbv6m-none-eabi, thumbv8m.main-none-eabihf
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Formatting
+        run: cargo fmt --all -- --check
+
+      - name: Clippy (host crates)
+        run: cargo clippy -p utsuroui -p utsuroui-demo --all-targets -- -D warnings
+
+      - name: Tests (host, golden images)
+        run: cargo test -p utsuroui -p utsuroui-demo
+
+      - name: Tests (optional features)
+        run: |
+          cargo test -p utsuroui --features full-fb
+          cargo test -p utsuroui --features u8g2
+
+      - name: Check the lcd adapter builds on the host
+        run: cargo check -p utsuroui --features lcd
+
+      - name: Docs
+        run: cargo doc -p utsuroui -p utsuroui-demo --no-deps
+
+  embedded:
+    name: MCU targets / firmware
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: "1.91.1"
+          components: clippy, llvm-tools-preview
+          targets: thumbv6m-none-eabi, thumbv8m.main-none-eabihf
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-embedded-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-embedded-
+
+      - name: no_std check (RP2040)
+        run: |
+          cargo check -p utsuroui --target thumbv6m-none-eabi
+          cargo check -p utsuroui --features lcd,full-fb,embassy --target thumbv6m-none-eabi
+          cargo check -p utsuroui-demo --target thumbv6m-none-eabi
+
+      - name: no_std check (RP2350)
+        run: |
+          cargo check -p utsuroui --target thumbv8m.main-none-eabihf
+          cargo check -p utsuroui --features lcd,full-fb,embassy --target thumbv8m.main-none-eabihf
+          cargo check -p utsuroui-demo --target thumbv8m.main-none-eabihf
+
+      - name: Clippy (firmware, both chips)
+        run: |
+          cargo clippy -p pico-tft --release --target thumbv6m-none-eabi -- -D warnings
+          cargo clippy -p pico-tft --release --no-default-features --features rp235xa \
+            --target thumbv8m.main-none-eabihf -- -D warnings
+
+      - name: Build firmware (RP2040)
+        run: cargo build -p pico-tft --release --target thumbv6m-none-eabi
+
+      - name: Build firmware (RP2350)
+        run: cargo build -p pico-tft --release --no-default-features --features rp235xa \
+          --target thumbv8m.main-none-eabihf
+
+      - name: Build firmware with TE gate
+        run: cargo build -p pico-tft --release --features te --target thumbv6m-none-eabi
+
+      - name: Record firmware sizes
+        run: |
+          SIZE="$(rustc --print sysroot)/lib/rustlib/$(rustc -vV | sed -n 's|host: ||p')/bin/llvm-size"
+          echo "== RP2040 =="
+          "$SIZE" -A target/thumbv6m-none-eabi/release/pico-tft
+          echo "== RP2350 =="
+          "$SIZE" -A target/thumbv8m.main-none-eabihf/release/pico-tft
