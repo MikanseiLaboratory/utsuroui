@@ -67,9 +67,9 @@ SYS=$(rustc --print sysroot); HOST=$(rustc -vV | sed -n 's|host: ||p')
 "$SYS/lib/rustlib/$HOST/bin/llvm-size" -A target/thumbv6m-none-eabi/release/pico-tft
 ```
 
-現在の実測値（defmt 込み）:
-RP2040 `.text` 35,860 / `.rodata` 14,076 / `.bss` 21,112、
-RP2350 `.text` 35,652 / `.rodata` 14,192 / `.bss` 21,144。
+現在の実測値（CI Linux ランナー, release, defmt 込み）:
+RP2040 `.text` 35,864 / `.rodata` 13,924 / `.bss` 21,104、
+RP2350 `.text` 35,640 / `.rodata` 14,036 / `.bss` 21,136。
 
 ### 2. スタック最低水位
 

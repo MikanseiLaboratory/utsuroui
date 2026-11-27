@@ -80,16 +80,19 @@ sequenceDiagram
 
 ## メモリ
 
-### 実測（release, defmt 込み）
+### 実測（CI Linux ランナー, release, defmt 込み, 既定ファームウェア）
 
 | 項目 | RP2040 | RP2350 |
 |---|---|---|
-| `.text` | 35,860 B | 35,652 B |
-| `.rodata` | 14,076 B | 14,192 B |
+| `.text` | 35,864 B | 35,640 B |
+| `.rodata` | 13,924 B | 14,036 B |
 | `.data` | 56 B | 56 B |
-| `.bss` | 21,112 B | 21,144 B |
-| Flash 合計（vector + boot2/start_block 含む） | 約 50 KB | 約 51 KB |
-| RAM 合計（`.data` + `.bss`） | 約 21 KB | 約 21 KB |
+| `.bss` | 21,104 B | 21,136 B |
+| Flash 合計（vector + boot2 / start_block 含む） | 50,292 B（約 49 KiB） | 51,736 B（約 50.5 KiB） |
+| RAM 合計（`.data` + `.bss`） | 21,160 B（約 20.7 KiB） | 21,192 B（約 20.7 KiB） |
+
+ホスト（macOS）で測ると数十バイト違いが出るが、桁は同じ。
+`cargo build --features te` の RP2040 版は `TeSink` の分だけわずかに増える。
 
 `.bss` の内訳は帯バッファ 2 枚（15,360 B）、core1 スタック（4 KB は stack 領域）、
 Embassy の静的領域、デモの状態。
