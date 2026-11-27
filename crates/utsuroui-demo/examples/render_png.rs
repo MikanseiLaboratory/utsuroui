@@ -89,16 +89,21 @@ fn render(app: &DemoApp, now_us: u64) -> Vec<u8> {
 
 fn navigate(app: &mut DemoApp, target: ScreenId) {
     app.set_nav_mode(NavMode::Cut);
+    if target == ScreenId::Menu {
+        return;
+    }
     let mut dirty = Dirty::new(SCREEN);
     let steps = match target {
-        ScreenId::Menu | ScreenId::Measure => 0,
+        ScreenId::Measure => 0,
         ScreenId::Settings => 1,
         ScreenId::About => 2,
+        ScreenId::Menu => unreachable!(),
     };
     for _ in 0..steps {
         app.event(&Event::Next, 0, &mut dirty);
     }
     app.event(&Event::Select, 0, &mut dirty);
+    assert_eq!(app.current(), target, "navigation helper failed");
 }
 
 fn main() {
