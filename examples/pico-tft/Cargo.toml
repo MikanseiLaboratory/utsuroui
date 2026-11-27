@@ -18,7 +18,6 @@ embassy-rp = { workspace = true, features = ["defmt"] }
 embassy-executor = { workspace = true, features = ["executor-thread", "platform-cortex-m"] }
 embassy-time.workspace = true
 embassy-sync.workspace = true
-embedded-hal.workspace = true
 embedded-hal-async.workspace = true
 embedded-hal-bus.workspace = true
 lcd-async.workspace = true

@@ -1101,7 +1101,6 @@ dependencies = [
  "embassy-rp",
  "embassy-sync",
  "embassy-time",
- "embedded-hal 1.0.0",
  "embedded-hal-async",
  "embedded-hal-bus",
  "lcd-async",
@@ -1656,7 +1655,6 @@ dependencies = [
 name = "utsuroui-demo"
 version = "0.1.0"
 dependencies = [
- "embedded-graphics",
  "png",
  "pollster",
  "utsuroui",

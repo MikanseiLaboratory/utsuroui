@@ -12,7 +12,6 @@ publish = false
 
 [dependencies]
 utsuroui = { workspace = true, features = ["full-fb"] }
-embedded-graphics.workspace = true
 
 [dev-dependencies]
 pollster.workspace = true

@@ -5,6 +5,7 @@
 > [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) と
 > [ARCHITECTURE.md](ARCHITECTURE.md) に記載する。
 > 本文中の「クレート名は未定」「`ui` モジュール」は、実装では `utsuroui` クレートに対応する。
+> 付属の型スケッチ `sketch/` は実装に移植済みで、このリポジトリには含めていない。
 
 - 対象: lagbuster 系の 2 ボタン機器。240×320 RGB565 の SPI TFT（ST7789 / ILI9341）、Embassy、RP2040 / RP2350
 - 日付: 2026-11-28（Asia/Tokyo）
