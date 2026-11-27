@@ -1,6 +1,11 @@
 [workspace]
 resolver = "3"
-members = ["crates/utsuroui", "crates/utsuroui-demo", "examples/pico-tft"]
+members = [
+    "crates/utsuroui",
+    "crates/utsuroui-demo",
+    "examples/iryx-sw00",
+    "examples/pico-tft",
+]
 
 [workspace.package]
 version = "0.1.0"

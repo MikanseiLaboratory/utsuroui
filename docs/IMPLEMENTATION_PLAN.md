@@ -68,18 +68,30 @@
 | 物理エンコーダ配線 | デモの操作系は 2 ボタン | 直交デコード (`EncoderDecoder`) と `Event::Encoder` は実装・テスト済み |
 | 角丸矩形・4bpp AA フォント・アイコン RLE・スプリング | 設計書でも later | — |
 
-## 5. 型スケッチ `sketch/` の扱い
+## 5. ファームウェア example
+
+| example | 基板 | パネル / バス | キー |
+|---|---|---|---|
+| `examples/pico-tft` | Pico / Pico 2 | 240×320 ST7789 / SPI0 | 2 ボタン（GP14/15） |
+| `examples/iryx-sw00` | Iryx SW-00（W5500-EVB-Pico） | 240×320 ST7789（反転）/ **SPI1** | MENU GP8 / MARK IN GP9 / INPUT1 GP1 / BACK GP26 |
+
+SW-00 のピン割り当ては `iryx` の旧 `switcher` ファームウェア
+（commit `fd992f7^`、`pico/src/bin/switcher.rs`）に合わせた。詳細は
+[HARDWARE.md](HARDWARE.md) と各 example の README。
+
+## 6. 型スケッチ `sketch/` の扱い
 
 設計書に付属していた `sketch/`（型チェック用の砂場）は、実装時に
 `crates/utsuroui` と `crates/utsuroui-demo` に移植した。スケッチは製品コードでは
 ないため、このリポジトリには含めていない。移植時の主な変更は本ファイル §3 を参照。
 
-## 6. テスト一覧（ホスト）
+## 7. テスト一覧（ホスト）
 
 | 種別 | 件数 | 内容 |
 |---|---|---|
 | コア単体 | 87 | geom / color / dirty / anim / text / event / focus / input / nav / widget |
 | コア統合（`tests/render.rs`） | 11 | 帯分割、部分更新、バイト順、クロスフェード、`full-fb` 等価性、テキスト |
+| デモ単体 | 3 | 合成遅延波形（範囲・周期性・連続性） |
 | デモ（`tests/app.rs`） | 16 | メニュー、遷移、Back 打ち切り、設定、間引き、freeze、wakeup |
 | デモ予算（`tests/budget.rs`） | 3 | ハイライト移動 ≤ 32 KiB、全面 20 帯、任意アプリ |
 | ゴールデン（`tests/golden.rs`） | 9 | PNG 8 枚 + 幾何 |
@@ -89,7 +101,7 @@
 再生成: `UPDATE_GOLDEN=1 cargo test -p utsuroui-demo --test golden`。
 生成後は必ず画像を目視確認してからコミットする。
 
-## 7. 実測手順（実機がつながったとき）
+## 8. 実測手順（実機がつながったとき）
 
 1. `probe-rs run --chip rp2040` で起動し、`defmt` の起動ログを確認。
 2. 全面赤 / 黒の切替で色順・向き・オフセットを確認（`panel.rs` の

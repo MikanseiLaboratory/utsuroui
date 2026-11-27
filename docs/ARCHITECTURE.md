@@ -15,6 +15,10 @@ HAL
   └── lcd-async 0.1.3 → embassy-rp SPI DMA → ST7789 / ILI9341
 ```
 
+ファームウェア example は 2 本ある。どちらも同じコアとデモを使い、変わるのは
+パネルのバス・ピンとキーの割り当てだけ（`examples/pico-tft` は SPI0、
+`examples/iryx-sw00` は Iryx SW-00 の SPI1 と 8 キー基板）。
+
 コアは HAL に依存しない。`lcd` feature のときだけ `lcd-async` をリンクし、
 境界は `BandSink::write_band` 1 メソッドだけ。ホストでは `MemorySink` が
 同じバイト列をフレームバッファへ書くので、ゴールデン画像は実機送信と一致する。
@@ -93,6 +97,10 @@ sequenceDiagram
 
 ホスト（macOS）で測ると数十バイト違いが出るが、桁は同じ。
 `cargo build --features te` の RP2040 版は `TeSink` の分だけわずかに増える。
+
+`examples/iryx-sw00`（同じデモ、SPI1、SW-00 キー）は macOS 実測で
+`.text` 36,256 / `.rodata` 14,080 / `.bss` 21,208 B（Flash 約 50.8 KiB /
+RAM 約 20.8 KiB）。差はパネル初期化とキー入力の分だけ。
 
 `.bss` の内訳は帯バッファ 2 枚（15,360 B）、core1 スタック（4 KB は stack 領域）、
 Embassy の静的領域、デモの状態。

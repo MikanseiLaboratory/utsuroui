@@ -21,6 +21,7 @@
 
 pub mod about;
 pub mod app;
+pub mod latency;
 pub mod measure;
 pub mod menu;
 pub mod render;
@@ -28,6 +29,7 @@ pub mod settings;
 pub mod style;
 
 pub use app::{DemoApp, NavMode, ScreenId};
+pub use latency::synthetic;
 pub use measure::MeasureState;
 pub use menu::{MenuAction, MenuState};
 pub use settings::SettingsState;
