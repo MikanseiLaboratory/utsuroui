@@ -102,8 +102,9 @@ jobs:
         run: cargo build -p pico-tft --release --target thumbv6m-none-eabi
 
       - name: Build firmware (RP2350)
-        run: cargo build -p pico-tft --release --no-default-features --features rp235xa \
-          --target thumbv8m.main-none-eabihf
+        run: |
+          cargo build -p pico-tft --release --no-default-features --features rp235xa \
+            --target thumbv8m.main-none-eabihf
 
       - name: Build firmware with TE gate
         run: cargo build -p pico-tft --release --features te --target thumbv6m-none-eabi
