@@ -106,9 +106,6 @@ jobs:
           cargo build -p pico-tft --release --no-default-features --features rp235xa \
             --target thumbv8m.main-none-eabihf
 
-      - name: Build firmware with TE gate
-        run: cargo build -p pico-tft --release --features te --target thumbv6m-none-eabi
-
       - name: Record firmware sizes
         run: |
           SIZE="$(rustc --print sysroot)/lib/rustlib/$(rustc -vV | sed -n 's|host: ||p')/bin/llvm-size"
@@ -116,3 +113,6 @@ jobs:
           "$SIZE" -A target/thumbv6m-none-eabi/release/pico-tft
           echo "== RP2350 =="
           "$SIZE" -A target/thumbv8m.main-none-eabihf/release/pico-tft
+
+      - name: Build firmware with TE gate
+        run: cargo build -p pico-tft --release --features te --target thumbv6m-none-eabi
