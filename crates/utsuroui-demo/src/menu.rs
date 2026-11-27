@@ -9,7 +9,7 @@ use utsuroui::text::TextStyle;
 
 use utsuroui::color::BLACK;
 
-use crate::style::{ACCENT, BG, CONTENT_W, FG, MARGIN, ROW_H, ROW_HIGHLIGHT_US, row_rect};
+use crate::style::{ACCENT, CONTENT_W, FG, MARGIN, ROW_H, ROW_HIGHLIGHT_US, row_rect};
 
 /// Menu entries, in display order.
 pub const ITEMS: &[&str] = &["Measure", "Settings", "About"];
@@ -156,7 +156,6 @@ impl MenuState {
             TextStyle::Small,
             FG,
         );
-        let _ = BG;
     }
 }
 

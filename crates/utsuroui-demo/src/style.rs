@@ -4,8 +4,8 @@
 //! rule, 28 px menu rows, a yellow highlight bar, and a footer with a live
 //! latency readout and bar.
 
-use utsuroui::color::{DARK_GRAY, GRAY, Rgb565, YELLOW};
-use utsuroui::geom::{Rect, Size};
+use utsuroui::color::{GRAY, Rgb565, YELLOW};
+use utsuroui::geom::Rect;
 
 use utsuroui::color::{BLACK, WHITE};
 
@@ -62,8 +62,6 @@ pub const BG: Rgb565 = BLACK;
 pub const FG: Rgb565 = WHITE;
 /// Secondary text colour.
 pub const DIM: Rgb565 = GRAY;
-/// Panel background used for insets.
-pub const PANEL: Rgb565 = DARK_GRAY;
 /// Accent colour (highlight bar, live values).
 pub const ACCENT: Rgb565 = YELLOW;
 
@@ -103,9 +101,6 @@ pub const GRAPH_RECT: Rect = Rect::new(16, 148, 208, 76);
 
 /// The rect holding the min/avg/max rows on the measure screen.
 pub const STATS_RECT: Rect = Rect::new(16, 84, 208, 54);
-
-/// Size of a text line for the footer.
-pub const FOOTER_SIZE: Size = Size::new(CONTENT_W, 20);
 
 /// Clamps a tenths value to the bar scale and returns the bar fill width.
 pub fn bar_width(value_x10: u16, scale_x10: u16) -> u16 {

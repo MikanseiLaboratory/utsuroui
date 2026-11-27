@@ -20,9 +20,9 @@ use crate::measure::MeasureState;
 use crate::menu::{MenuAction, MenuActionChoice, MenuState};
 use crate::settings::{SettingsChange, SettingsState};
 use crate::style::{
-    ACCENT, BAR_H, BAR_RECT, BAR_Y, BG, CONTENT_W, CROSSFADE_US, DEFAULT_SCALE_X10, DIM, FADE_US,
-    FG, FOOTER_Y, H, HEADER_H, LATENCY_INTERVAL_US, MARGIN, READOUT_RECT, READOUT_TWEEN_US,
-    READOUT_Y, SCREEN, SLIDE_US, W,
+    ACCENT, BAR_H, BAR_RECT, BAR_Y, BG, CROSSFADE_US, DEFAULT_SCALE_X10, DIM, FADE_US, FG,
+    FOOTER_Y, HEADER_H, LATENCY_INTERVAL_US, MARGIN, READOUT_RECT, READOUT_TWEEN_US, READOUT_Y,
+    SCREEN, SLIDE_US, W,
 };
 
 /// Screen identifiers; the router stores these.
@@ -122,8 +122,6 @@ pub struct DemoApp {
     pub latency_x10: u16,
     /// Bar full scale in tenths of a millisecond.
     pub scale_x10: u16,
-    /// Number of flushed frames; handy for tests and diagnostics.
-    pub frames: u32,
 }
 
 impl Default for DemoApp {
@@ -142,7 +140,6 @@ impl Default for DemoApp {
             last_sample_us: None,
             latency_x10: measure.value_x10,
             scale_x10: DEFAULT_SCALE_X10,
-            frames: 0,
         }
     }
 }
@@ -303,7 +300,6 @@ impl DemoApp {
             );
         }
         cx.stroke_rect(frame, FG);
-        let _ = (CONTENT_W, READOUT_RECT, BG, H as i16);
     }
 
     fn paint_screen(&self, cx: &mut PaintCx<'_>, id: ScreenId, origin: Point, now_us: u64) {
@@ -321,8 +317,6 @@ impl DemoApp {
 
 impl App for DemoApp {
     fn event(&mut self, event: &Event, now_us: u64, dirty: &mut DirtyList) {
-        self.frames = self.frames.wrapping_add(1);
-
         // A transition swallows input except Back, which aborts it with a cut
         // (DESIGN.md open question 3, recommended answer).
         if self.transition.is_active() {
