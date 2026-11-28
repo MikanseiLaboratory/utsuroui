@@ -123,8 +123,8 @@ where
             ..FlushStats::default()
         };
         for band in bands(dirty, cfg) {
-            let mut buf = free.receive().await;
-            let len = paint_band(app, band, cfg, now_us, &mut buf, Some(&mut *under));
+            let buf = free.receive().await;
+            let len = paint_band(app, band, cfg, now_us, buf, Some(&mut *under));
             stats.bands = stats.bands.saturating_add(1);
             stats.bytes = stats.bytes.saturating_add(len as u32);
             work.send(Some((band, buf))).await;

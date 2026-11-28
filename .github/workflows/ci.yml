@@ -99,12 +99,19 @@ jobs:
           cargo clippy -p pico-tft --release --no-default-features --features rp235xa \
             --target thumbv8m.main-none-eabihf -- -D warnings
           cargo clippy -p spi1-panel --release --target thumbv6m-none-eabi -- -D warnings
+          cargo clippy -p anim-showcase --release --target thumbv6m-none-eabi -- -D warnings
+          cargo clippy -p gui-showcase --release --target thumbv6m-none-eabi -- -D warnings
 
       - name: Build firmware (RP2040)
         run: cargo build -p pico-tft --release --target thumbv6m-none-eabi
 
       - name: Build firmware (SPI1 panel + keys)
         run: cargo build -p spi1-panel --release --target thumbv6m-none-eabi
+
+      - name: Build firmware (demos)
+        run: |
+          cargo build -p anim-showcase --release --target thumbv6m-none-eabi
+          cargo build -p gui-showcase --release --target thumbv6m-none-eabi
 
       - name: Build firmware (RP2350)
         run: |
