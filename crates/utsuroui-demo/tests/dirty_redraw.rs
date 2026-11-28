@@ -27,15 +27,7 @@ fn render_full(app: &DemoApp, now_us: u64, buf: &mut [u8]) {
     let cfg = RenderCfg::new(SCREEN, BAND_H);
     let mut buffers = utsuroui::BandBuffers::<BAND_LEN>::new();
     let mut sink = MemorySink::new(buf, W);
-    pollster::block_on(flush(
-        app,
-        &mut sink,
-        &dirty,
-        now_us,
-        &mut buffers,
-        &cfg,
-    ))
-    .unwrap();
+    pollster::block_on(flush(app, &mut sink, &dirty, now_us, &mut buffers, &cfg)).unwrap();
 }
 
 fn render_dirty(
@@ -47,15 +39,7 @@ fn render_dirty(
 ) {
     let cfg = RenderCfg::new(SCREEN, BAND_H);
     let mut sink = MemorySink::new(buf, W);
-    pollster::block_on(flush(
-        app,
-        &mut sink,
-        dirty,
-        now_us,
-        buffers,
-        &cfg,
-    ))
-    .unwrap();
+    pollster::block_on(flush(app, &mut sink, dirty, now_us, buffers, &cfg)).unwrap();
 }
 
 /// Replays `events`, then ticks for `steps` frames, and asserts that the
@@ -99,11 +83,7 @@ fn assert_converges(name: &str, events: &[(u64, Event)], steps: u64) {
 
 #[test]
 fn menu_highlight_tween_converges() {
-    assert_converges(
-        "menu next",
-        &[(START_US, Event::Next)],
-        40,
-    );
+    assert_converges("menu next", &[(START_US, Event::Next)], 40);
 }
 
 #[test]
@@ -117,9 +97,5 @@ fn menu_retarget_converges() {
 
 #[test]
 fn menu_previous_converges() {
-    assert_converges(
-        "menu previous",
-        &[(START_US + 60_000, Event::Previous)],
-        60,
-    );
+    assert_converges("menu previous", &[(START_US + 60_000, Event::Previous)], 60);
 }

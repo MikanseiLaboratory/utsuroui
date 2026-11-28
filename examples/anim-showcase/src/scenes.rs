@@ -240,7 +240,15 @@ impl Ticker {
 
     fn paint(&self, cx: &mut PaintCx<'_>, now_us: u64) {
         cx.with_clip(Rect::new(0, MARQUEE_A_Y, W, MARQUEE_A_H), |cx| {
-            self.marquee(cx, now_us, TEXT_A, MARQUEE_A_Y, 70, TextStyle::Medium, YELLOW);
+            self.marquee(
+                cx,
+                now_us,
+                TEXT_A,
+                MARQUEE_A_Y,
+                70,
+                TextStyle::Medium,
+                YELLOW,
+            );
         });
         cx.with_clip(Rect::new(0, MARQUEE_B_Y, W, MARQUEE_B_H), |cx| {
             self.marquee(cx, now_us, TEXT_B, MARQUEE_B_Y, 110, TextStyle::Small, CYAN);
@@ -557,7 +565,13 @@ impl Showcase {
             let index = format_u16(self.index as u16 + 1, &mut buf);
             let suffix_w = measure("/4", TextStyle::Medium).w as i16;
             cx.text_right("/4", W as i16 - 8, 12, TextStyle::Medium, GRAY);
-            cx.text_right(index, W as i16 - 10 - suffix_w, 12, TextStyle::Medium, WHITE);
+            cx.text_right(
+                index,
+                W as i16 - 10 - suffix_w,
+                12,
+                TextStyle::Medium,
+                WHITE,
+            );
             cx.hline(HEADER_H as i16 - 1, 0, W as i16 - 1, GRID);
         });
 

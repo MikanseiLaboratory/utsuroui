@@ -68,15 +68,7 @@ fn step(app: &mut scenes::Showcase, now: u64, frame: &mut [u8]) {
     let cfg = RenderCfg::new(utsuroui::SCREEN, BAND_H);
     let mut buffers = utsuroui::BandBuffers::<BAND_LEN>::new();
     let mut sink = MemorySink::new(frame, W);
-    pollster::block_on(flush(
-        app,
-        &mut sink,
-        &dirty,
-        now,
-        &mut buffers,
-        &cfg,
-    ))
-    .unwrap();
+    pollster::block_on(flush(app, &mut sink, &dirty, now, &mut buffers, &cfg)).unwrap();
 }
 
 fn main() {
@@ -100,15 +92,8 @@ fn main() {
             let cfg = RenderCfg::new(utsuroui::SCREEN, BAND_H);
             let mut buffers = utsuroui::BandBuffers::<BAND_LEN>::new();
             let mut sink = MemorySink::new(&mut frame, W);
-            pollster::block_on(flush(
-                &app,
-                &mut sink,
-                &dirty,
-                STEP_US,
-                &mut buffers,
-                &cfg,
-            ))
-            .unwrap();
+            pollster::block_on(flush(&app, &mut sink, &dirty, STEP_US, &mut buffers, &cfg))
+                .unwrap();
         }
         // Then two seconds of animation.
         let mut now = STEP_US;

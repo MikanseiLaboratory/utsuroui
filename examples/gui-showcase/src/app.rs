@@ -194,8 +194,7 @@ impl GuiApp {
 
     fn paint_home(&self, cx: &mut PaintCx<'_>, dx: i16, now_us: u64) {
         let mut state = self.highlight_state;
-        self.highlight
-            .arrange(LIST.translate(dx, 0), &mut state);
+        self.highlight.arrange(LIST.translate(dx, 0), &mut state);
         // The bar goes underneath the card content.
         self.highlight.paint(cx, &state, now_us);
         for row in 0..ROWS {
@@ -256,7 +255,8 @@ impl GuiApp {
         }
 
         let mut slider_state = self.slider_state;
-        self.slider.arrange(SLIDER_ROW.translate(dx, 0), &mut slider_state);
+        self.slider
+            .arrange(SLIDER_ROW.translate(dx, 0), &mut slider_state);
         cx.text(
             "Brightness",
             Point::new(SLIDER_ROW.x + 8 + dx, SLIDER_ROW.y - 14),
@@ -277,7 +277,10 @@ impl GuiApp {
         cx.text(number, Point::new(x, READOUT.y), TextStyle::Large, ACCENT);
         cx.text(
             "%",
-            Point::new(x + measure(number, TextStyle::Large).w as i16 + 4, READOUT.y + 6),
+            Point::new(
+                x + measure(number, TextStyle::Large).w as i16 + 4,
+                READOUT.y + 6,
+            ),
             TextStyle::Medium,
             MUTED,
         );
@@ -306,7 +309,8 @@ impl App for GuiApp {
         match (self.screen, event) {
             (Screen::Home, Event::Next) => {
                 let next = (self.highlight_state.index + 1) % ROWS;
-                self.highlight.select(&mut self.highlight_state, next, now_us);
+                self.highlight
+                    .select(&mut self.highlight_state, next, now_us);
                 dirty.add(LIST);
             }
             (Screen::Home, Event::Previous) => {
@@ -315,7 +319,8 @@ impl App for GuiApp {
                 } else {
                     self.highlight_state.index - 1
                 };
-                self.highlight.select(&mut self.highlight_state, prev, now_us);
+                self.highlight
+                    .select(&mut self.highlight_state, prev, now_us);
                 dirty.add(LIST);
             }
             (Screen::Home, Event::Select) => {
@@ -351,9 +356,7 @@ impl App for GuiApp {
                     );
                 }
                 _ => {
-                    let value = self
-                        .slider
-                        .nudge(&mut self.slider_state, 1, now_us);
+                    let value = self.slider.nudge(&mut self.slider_state, 1, now_us);
                     dirty.add(SLIDER_ROW);
                     dirty.add(READOUT);
                     self.announce(

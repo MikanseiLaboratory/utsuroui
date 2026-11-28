@@ -67,9 +67,8 @@ async fn main(spawner: Spawner) {
     let prev = Input::new(p.PIN_9, Pull::Up);
     let input1 = Input::new(p.PIN_1, Pull::Up);
     let back = Input::new(p.PIN_26, Pull::Up);
-    spawner.spawn(
-        input::task(menu, prev, input1, back, EVENTS.sender()).expect("spawn input task"),
-    );
+    spawner
+        .spawn(input::task(menu, prev, input1, back, EVENTS.sender()).expect("spawn input task"));
 
     // Core 1: measurement only.
     let latency_sender = LATENCY.sender();

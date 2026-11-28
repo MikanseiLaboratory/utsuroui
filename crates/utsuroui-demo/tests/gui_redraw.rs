@@ -94,11 +94,11 @@ fn toggling_and_sliding_converges() {
     check(
         "controls",
         &[
-            (16_000, Event::Select),      // open controls
-            (320_000, Event::Select),     // flip the focused toggle
-            (480_000, Event::Next),       // focus moves
-            (640_000, Event::LongPress),  // nothing on a toggle
-            (800_000, Event::Back),       // back home
+            (16_000, Event::Select),     // open controls
+            (320_000, Event::Select),    // flip the focused toggle
+            (480_000, Event::Next),      // focus moves
+            (640_000, Event::LongPress), // nothing on a toggle
+            (800_000, Event::Back),      // back home
         ],
         60,
     );

@@ -76,12 +76,7 @@ fn write_png(path: &Path, rgb: &[u8], width: u32, height: u32) {
 fn render(app: &DemoApp, now_us: u64) -> Vec<u8> {
     let mut frame = vec![0u8; FRAME_LEN];
     let mut buffers = utsuroui_demo::render::BandBuf::new();
-    pollster::block_on(render_frame(
-        app,
-        now_us,
-        &mut frame,
-        &mut buffers,
-    ));
+    pollster::block_on(render_frame(app, now_us, &mut frame, &mut buffers));
     frame
 }
 

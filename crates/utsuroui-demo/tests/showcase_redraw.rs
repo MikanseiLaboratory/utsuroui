@@ -25,15 +25,7 @@ fn render(app: &scenes::Showcase, dirty: &Dirty, now: u64, frame: &mut [u8]) {
     let cfg = RenderCfg::new(utsuroui::SCREEN, BAND_H);
     let mut buffers = utsuroui::BandBuffers::<BAND_LEN>::new();
     let mut sink = MemorySink::new(frame, W);
-    pollster::block_on(flush(
-        app,
-        &mut sink,
-        dirty,
-        now,
-        &mut buffers,
-        &cfg,
-    ))
-    .unwrap();
+    pollster::block_on(flush(app, &mut sink, dirty, now, &mut buffers, &cfg)).unwrap();
 }
 
 fn check_scene(index: usize, name: &str) {

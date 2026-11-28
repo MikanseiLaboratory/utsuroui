@@ -108,7 +108,8 @@ impl<const LEN: usize> BandBuffers<LEN> {
 /// A [`BandSink`] that copies bands into a full-frame RGB565 buffer.
 ///
 /// Used by the host renderer, golden-image tests and `no_std` snapshot code.
-pub struct MemorySink<'a> {    buf: &'a mut [u8],
+pub struct MemorySink<'a> {
+    buf: &'a mut [u8],
     width: u16,
 }
 

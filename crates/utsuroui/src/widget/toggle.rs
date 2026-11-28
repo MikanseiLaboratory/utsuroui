@@ -52,7 +52,9 @@ impl Toggle {
     /// Flips the switch; returns the new value.
     pub fn toggle(&self, state: &mut ToggleState, now_us: u64) -> bool {
         state.on = !state.on;
-        state.pos.retarget(now_us, if state.on { 1 } else { 0 }, self.duration_us);
+        state
+            .pos
+            .retarget(now_us, if state.on { 1 } else { 0 }, self.duration_us);
         state.on
     }
 }
@@ -138,7 +140,12 @@ mod tests {
 
     #[test]
     fn toggle_flips_and_marks_its_row() {
-        let w = Toggle::new(120_000, crate::color::YELLOW, crate::color::GRAY, crate::color::WHITE);
+        let w = Toggle::new(
+            120_000,
+            crate::color::YELLOW,
+            crate::color::GRAY,
+            crate::color::WHITE,
+        );
         let mut state = ToggleState::default();
         w.arrange(Rect::new(8, 64, 224, 40), &mut state);
         let mut out = EventOut::default();

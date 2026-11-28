@@ -87,15 +87,8 @@ async fn run_ui<S: BandSink>(app: &mut scenes::Showcase, sink: &mut S) {
 
     let cfg = UiConfig::new(RenderCfg::new(utsuroui::SCREEN, BAND_H), FRAME_BUDGET_US);
 
-    if let Err(error) = utsuroui::embassy_task::ui_task(
-        app,
-        sink,
-        buffers,
-        &mut events,
-        &mut latency,
-        cfg,
-    )
-    .await
+    if let Err(error) =
+        utsuroui::embassy_task::ui_task(app, sink, buffers, &mut events, &mut latency, cfg).await
     {
         info!("display write failed: {:?}", defmt::Debug2Format(&error));
     }

@@ -276,7 +276,8 @@ impl Tween {
         if !self.running {
             return false;
         }
-        if self.duration_us == 0 || now_us.saturating_sub(self.start_us) >= self.duration_us as u64 {
+        if self.duration_us == 0 || now_us.saturating_sub(self.start_us) >= self.duration_us as u64
+        {
             self.running = false;
         }
         true

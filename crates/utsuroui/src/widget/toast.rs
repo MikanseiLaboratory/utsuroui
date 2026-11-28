@@ -145,7 +145,12 @@ impl Widget for Toast {
         let x = rect.x + ((rect.w.saturating_sub(text_w)) / 2) as i16;
         let y = rect.y + ((rect.h.saturating_sub(text_h)) / 2) as i16;
         if !state.text.is_empty() {
-            cx.text(state.text, crate::geom::Point::new(x, y), TextStyle::Small, self.fg);
+            cx.text(
+                state.text,
+                crate::geom::Point::new(x, y),
+                TextStyle::Small,
+                self.fg,
+            );
         }
     }
 }

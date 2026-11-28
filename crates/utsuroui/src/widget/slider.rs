@@ -166,7 +166,12 @@ impl Widget for Slider {
         let mut tick = 0i16;
         while tick <= span {
             let tx = track.x + (track.w as i32 * tick as i32 / span as i32) as i16;
-            cx.vline(tx, track.y.saturating_sub(3), track.y.saturating_sub(1), self.track);
+            cx.vline(
+                tx,
+                track.y.saturating_sub(3),
+                track.y.saturating_sub(1),
+                self.track,
+            );
             tick += 10;
         }
     }

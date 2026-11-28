@@ -24,8 +24,8 @@ use embassy_sync::watch::Receiver as WatchReceiver;
 use embassy_time::{Duration, Timer};
 
 use crate::app::App;
-use crate::band::BandSink;
 use crate::band::BandBuffers;
+use crate::band::BandSink;
 use crate::dirty::Dirty;
 use crate::event::Event;
 use crate::flush::{RenderCfg, flush_pipelined};

@@ -51,7 +51,12 @@ impl Highlight {
     /// The bar as it is drawn at `now_us`.
     pub fn bar(&self, state: &HighlightState, now_us: u64) -> Rect {
         let y = state.y.value_at(now_us) as i16;
-        Rect::new(state.bounds.x, state.bounds.y + y, state.bounds.w, self.row_h)
+        Rect::new(
+            state.bounds.x,
+            state.bounds.y + y,
+            state.bounds.w,
+            self.row_h,
+        )
     }
 
     /// Selects `row`; returns whether the selection changed.
@@ -180,7 +185,11 @@ mod tests {
         w.arrange(Rect::new(0, 40, 240, 84), &mut state);
         w.select(&mut state, 2, 0);
         let mut now = 0;
-        while w.tick(&mut state, now, &mut DirtyList::new(Rect::new(0, 0, 240, 320))) {
+        while w.tick(
+            &mut state,
+            now,
+            &mut DirtyList::new(Rect::new(0, 0, 240, 320)),
+        ) {
             now += 16_000;
         }
         assert_eq!(w.bar(&state, now).y, 40 + 2 * 28);

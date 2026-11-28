@@ -106,11 +106,14 @@ fn main() {
     app.tick(260_000, &mut Dirty::new(utsuroui::SCREEN));
     render_full(&app, 260_000, &mut frame);
     write_png(&out.join("controls.png"), &frame_to_rgb(&frame));
-    write_png(&docs.join("gui_home.png"), &frame_to_rgb(&{
-        let mut f = vec![0u8; FRAME_LEN];
-        render_full(&app::GuiApp::new(), 0, &mut f);
-        f
-    }));
+    write_png(
+        &docs.join("gui_home.png"),
+        &frame_to_rgb(&{
+            let mut f = vec![0u8; FRAME_LEN];
+            render_full(&app::GuiApp::new(), 0, &mut f);
+            f
+        }),
+    );
 
     println!("wrote {}", out.display());
 }

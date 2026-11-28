@@ -14,7 +14,6 @@
 //! | BL | GP28 |
 //!
 
-
 use embassy_rp::Peri;
 use embassy_rp::gpio::{Level, Output};
 use embassy_rp::interrupt::typelevel::Binding;

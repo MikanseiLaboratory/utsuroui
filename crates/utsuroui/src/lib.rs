@@ -67,9 +67,9 @@ pub use band::{BandBuffers, BandSink, MemorySink, blend_band};
 pub use color::{BLACK, DARK_GRAY, GRAY, WHITE, YELLOW, be_bytes, blend, darken, lerp};
 pub use dirty::{Dirty, DirtyList, MAX_DIRTY};
 pub use event::{Event, EventOut};
-pub use flush::{FlushStats, RenderCfg, flush};
 #[cfg(feature = "pipeline")]
 pub use flush::flush_pipelined;
+pub use flush::{FlushStats, RenderCfg, flush};
 pub use focus::Focus;
 pub use geom::{Point, Rect, Size};
 pub use input::{DebounceConfig, Debouncer, Edge, EncoderDecoder};
@@ -81,8 +81,7 @@ pub use text::{
 pub use widget::{
     Background, CrossAlign, Edges, Expanded, Fixed, HStack, Highlight, HighlightState, MainAlign,
     Marquee, MarqueeState, MeasureCx, Padding, Slider, SliderState, Toast, ToastState, Toggle,
-    ToggleState, VStack,
-    Widget,
+    ToggleState, VStack, Widget,
 };
 
 /// The nominal screen size of the reference device.

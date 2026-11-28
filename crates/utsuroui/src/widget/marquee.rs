@@ -126,6 +126,10 @@ mod tests {
         assert_eq!(dirty.as_slice(), &[Rect::new(0, 50, 240, 12)]);
 
         // Same instant: nothing changed, no work.
-        assert!(!w.tick(&mut state, 1_000_000, &mut DirtyList::new(Rect::new(0, 0, 240, 320))));
+        assert!(!w.tick(
+            &mut state,
+            1_000_000,
+            &mut DirtyList::new(Rect::new(0, 0, 240, 320))
+        ));
     }
 }
