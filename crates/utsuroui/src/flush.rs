@@ -54,7 +54,7 @@ pub struct FlushStats {
 /// Paint and transfer share the band buffers: the band being sent and the band
 /// being painted live in different buffers, so a sink that hands the buffer to a
 /// DMA engine lets the CPU fill the next band while the panel receives the
-/// current one. On firmware use [`flush_pipelined`] (the `embassy` feature); this
+/// current one. On firmware use `flush_pipelined` (the `pipeline` feature); this
 /// serial form is what the host renderer and non-Embassy users call.
 pub async fn flush<A, S, const LEN: usize>(
     app: &A,
