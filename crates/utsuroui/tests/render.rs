@@ -79,22 +79,13 @@ fn run<A: App>(
     now: u64,
     band_b: bool,
 ) -> (Vec<u8>, utsuroui::flush::FlushStats) {
+    let _ = band_b;
     let mut frame = vec![0u8; W as usize * H as usize * 2];
-    let mut buf_a = vec![0u8; BAND_LEN];
-    let mut buf_b = vec![0u8; BAND_LEN];
+    let mut buffers = utsuroui::BandBuffers::<BAND_LEN>::new();
     let cfg = RenderCfg::new(SCREEN, BAND);
     let stats = {
         let mut sink = MemorySink::new(&mut frame, W);
-        pollster::block_on(flush(
-            app,
-            &mut sink,
-            dirty,
-            now,
-            &mut buf_a,
-            if band_b { Some(&mut buf_b) } else { None },
-            &cfg,
-        ))
-        .unwrap()
+        pollster::block_on(flush(app, &mut sink, dirty, now, &mut buffers, &cfg)).unwrap()
     };
     (frame, stats)
 }
@@ -193,14 +184,19 @@ fn crossfade_blends_under_and_over_layers() {
 }
 
 #[test]
-fn crossfade_without_scratch_buffer_falls_back() {
+fn crossfade_uses_the_scratch_buffer_for_every_band() {
+    // `BandBuffers` always carries a crossfade buffer, so a crossfade must be
+    // blended on every band, including the last (partial) one.
     let mut app = SolidApp::new(BLACK);
     app.under = WHITE;
-    app.alpha = Some(128);
+    app.alpha = Some(200);
     let mut dirty = Dirty::new(SCREEN);
     dirty.mark_full();
-    let (frame, _) = run(&app, &dirty, 0, false);
-    assert_eq!(px(&frame, 0, 0), BLACK);
+    let (frame, _) = run(&app, &dirty, 0, true);
+    let expected = blend(BLACK, WHITE, 200);
+    for y in [0u16, 16, 160, 319] {
+        assert_eq!(px(&frame, 10, y), expected, "band row {y}");
+    }
 }
 
 #[test]

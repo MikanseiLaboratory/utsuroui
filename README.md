@@ -17,6 +17,10 @@ fixed-point tweening with continuous retargeting.
 |---|---|
 | ![menu](docs/images/menu_initial.png) | ![measure](docs/images/measure.png) |
 
+| GUI showcase — home | controls |
+|---|---|
+| ![home](docs/images/gui_home.png) | ![controls](docs/images/gui_controls.png) |
+
 ## Features
 
 - **Dirty-rect bands** — a 16 px highlight move sends ~25 KB, not the 153,600 B
@@ -35,6 +39,13 @@ fixed-point tweening with continuous retargeting.
 - **Transport-agnostic** — the renderer only knows `BandSink`
   (`write_band(rect, bytes).await`). SPI + DMA live behind it (`lcd-async`
   adapter); a parallel, USB or in-memory sink needs no change to the framework.
+- **Pipelined transfer** — the next band is painted while the previous one is
+  on the wire: two band buffers and one sink, no extra task, no `'static`.
+- **Band buffers included** — `BandBuffers<N>` owns the paint, send and
+  crossfade buffers, so firmware does not juggle `split_at_mut`.
+- **Animated widgets** — `Highlight`, `Toggle`, `Slider`, `Toast`, `Marquee`
+  and `Orbit`. Each one reports the rectangles it invalidated, so an animation
+  sends only what moved.
 - **Measurement isolation** — core 1 only writes the latest sample; the UI
   throttles it to 30 Hz.
 - **Host-tested** — 8 PNG goldens, byte-order and band-splitting checks,
@@ -50,6 +61,7 @@ crates/utsuroui-demo/ 240x320 demo app, golden tests, PNG screenshot tool
 examples/pico-tft/    RP2040 (SPI0) and RP2350 (feature rp235xa)
 examples/spi1-panel/  same demo on SPI1 with an 8-key front panel
 examples/anim-showcase/ animation demo: waveform, ticker, floating rings, spectrum
+examples/gui-showcase/  card list, switches, slider and toast: the widget layer in use
 ```
 
 ## Quick start
@@ -63,9 +75,10 @@ cargo run -p utsuroui-demo --example render_png     # target/golden/*.png
 rustup target add thumbv6m-none-eabi
 cargo build -p pico-tft --release --target thumbv6m-none-eabi
 
-# SPI1 panel + keys, and the animation demo
+# SPI1 panel + keys, the animation demo and the GUI demo
 cargo build -p spi1-panel --release --target thumbv6m-none-eabi
 cargo build -p anim-showcase --release --target thumbv6m-none-eabi
+cargo build -p gui-showcase --release --target thumbv6m-none-eabi
 
 # Flash (SWD)
 cd examples/pico-tft && probe-rs run --chip rp2040

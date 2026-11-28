@@ -25,16 +25,14 @@ fn render_full(app: &DemoApp, now_us: u64, buf: &mut [u8]) {
     let mut dirty = Dirty::new(SCREEN);
     dirty.mark_full();
     let cfg = RenderCfg::new(SCREEN, BAND_H);
-    let mut band_a = vec![0u8; BAND_LEN];
-    let mut band_b = vec![0u8; BAND_LEN];
+    let mut buffers = utsuroui::BandBuffers::<BAND_LEN>::new();
     let mut sink = MemorySink::new(buf, W);
     pollster::block_on(flush(
         app,
         &mut sink,
         &dirty,
         now_us,
-        &mut band_a,
-        Some(&mut band_b),
+        &mut buffers,
         &cfg,
     ))
     .unwrap();
@@ -45,8 +43,7 @@ fn render_dirty(
     now_us: u64,
     dirty: &Dirty,
     buf: &mut [u8],
-    band_a: &mut [u8],
-    band_b: &mut [u8],
+    buffers: &mut utsuroui::BandBuffers<BAND_LEN>,
 ) {
     let cfg = RenderCfg::new(SCREEN, BAND_H);
     let mut sink = MemorySink::new(buf, W);
@@ -55,8 +52,7 @@ fn render_dirty(
         &mut sink,
         dirty,
         now_us,
-        band_a,
-        Some(band_b),
+        buffers,
         &cfg,
     ))
     .unwrap();
@@ -67,12 +63,11 @@ fn render_dirty(
 fn assert_converges(name: &str, events: &[(u64, Event)], steps: u64) {
     let mut app = DemoApp::new();
     let mut dirty = Dirty::new(SCREEN);
-    let mut band_a = vec![0u8; BAND_LEN];
-    let mut band_b = vec![0u8; BAND_LEN];
+    let mut buffers = utsuroui::BandBuffers::<BAND_LEN>::new();
     let mut frame = vec![0u8; FRAME_LEN];
 
     dirty.mark_full();
-    render_dirty(&app, 0, &dirty, &mut frame, &mut band_a, &mut band_b);
+    render_dirty(&app, 0, &dirty, &mut frame, &mut buffers);
     dirty.clear();
 
     for &(at, event) in events {
@@ -88,7 +83,7 @@ fn assert_converges(name: &str, events: &[(u64, Event)], steps: u64) {
 
         app.tick(now, &mut dirty);
         if !dirty.is_empty() {
-            render_dirty(&app, now, &dirty, &mut frame, &mut band_a, &mut band_b);
+            render_dirty(&app, now, &dirty, &mut frame, &mut buffers);
             dirty.clear();
         }
 

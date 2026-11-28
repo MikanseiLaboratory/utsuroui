@@ -104,6 +104,74 @@ pub fn lerp_i32(from: i32, to: i32, t: Q16) -> i32 {
     ((from as i64 * u + to as i64 * t) / 65_535) as i32
 }
 
+use crate::geom::{Point, Rect, Size};
+
+/// A smooth periodic wave in `-4096..=4096`; `turn` wraps every 65 536.
+///
+/// A parabola rather than a true sine: it costs a multiply and a divide, needs
+/// no table, and reads as a smooth oscillation at panel resolution.
+pub fn wave(turn: u16) -> i16 {
+    let half = if turn < 32_768 {
+        turn as i32
+    } else {
+        65_536 - turn as i32
+    };
+    let y = (half * (32_768 - half)) / 65_536;
+    if turn < 32_768 { y as i16 } else { -(y as i16) }
+}
+
+/// A point moving on a periodic path, for floating or orbiting elements.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Orbit {
+    /// Centre of the path.
+    pub center: Point,
+    /// Maximum distance from the centre on each axis.
+    pub amplitude: (i16, i16),
+    /// Time for one full cycle, in microseconds.
+    pub period_us: u32,
+    /// Phase offset in 1/65536 of a cycle.
+    pub phase: u16,
+}
+
+impl Orbit {
+    /// Creates an orbit.
+    pub const fn new(center: Point, amplitude: (i16, i16), period_us: u32, phase: u16) -> Self {
+        Self {
+            center,
+            amplitude,
+            period_us,
+            phase,
+        }
+    }
+
+    /// Position at `now_us`.
+    pub fn position(&self, now_us: u64) -> Point {
+        let period = self.period_us.max(1) as u64;
+        let turn = ((now_us % period) * 65_536 / period) as u16;
+        let dx = (self.amplitude.0 as i32 * wave(turn.wrapping_add(self.phase)) as i32) / 4_096;
+        let dy = (self.amplitude.1 as i32
+            * wave(turn.wrapping_add(self.phase).wrapping_add(16_384)) as i32)
+            / 4_096;
+        Point::new(self.center.x + dx as i16, self.center.y + dy as i16)
+    }
+
+    /// Bounding box of an element of `size` centred on the orbit at `now_us`.
+    pub fn rect(&self, now_us: u64, size: Size) -> Rect {
+        let p = self.position(now_us);
+        Rect::new(
+            p.x - size.w as i16 / 2,
+            p.y - size.h as i16 / 2,
+            size.w,
+            size.h,
+        )
+    }
+
+    /// Union of the boxes at two instants: what must be repainted.
+    pub fn dirty(&self, previous_us: u64, now_us: u64, size: Size) -> Rect {
+        self.rect(previous_us, size).union(self.rect(now_us, size))
+    }
+}
+
 /// A scalar animated from `from` to `to` over `duration_us`.
 ///
 /// The same type animates positions, fixed-point values, alpha and (via

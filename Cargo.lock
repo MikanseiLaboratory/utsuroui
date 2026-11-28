@@ -780,6 +780,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "gui-showcase"
+version = "0.1.0"
+dependencies = [
+ "cortex-m",
+ "cortex-m-rt",
+ "critical-section",
+ "defmt",
+ "defmt-rtt",
+ "embassy-executor",
+ "embassy-rp",
+ "embassy-sync",
+ "embassy-time",
+ "embedded-hal-async",
+ "embedded-hal-bus",
+ "lcd-async",
+ "panic-probe",
+ "portable-atomic",
+ "static_cell",
+ "utsuroui",
+]
+
+[[package]]
 name = "half"
 version = "2.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1687,6 +1709,7 @@ checksum = "ebc1c04c71510c7f702b52b7c350734c9ff1295c464a03335b00bb84fc54f853"
 name = "utsuroui"
 version = "0.1.0"
 dependencies = [
+ "critical-section",
  "embassy-futures",
  "embassy-sync",
  "embassy-time",

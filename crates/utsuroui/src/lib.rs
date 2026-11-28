@@ -61,13 +61,15 @@ pub mod u8g2;
 #[cfg(feature = "embassy")]
 pub mod embassy_task;
 
-pub use anim::{Easing, Q16, Tween, ease, lerp_i32};
+pub use anim::{Easing, Orbit, Q16, Tween, ease, lerp_i32, wave};
 pub use app::App;
-pub use band::{BandSink, MemorySink, blend_band};
+pub use band::{BandBuffers, BandSink, MemorySink, blend_band};
 pub use color::{BLACK, DARK_GRAY, GRAY, WHITE, YELLOW, be_bytes, blend, darken, lerp};
 pub use dirty::{Dirty, DirtyList, MAX_DIRTY};
 pub use event::{Event, EventOut};
 pub use flush::{FlushStats, RenderCfg, flush};
+#[cfg(feature = "pipeline")]
+pub use flush::flush_pipelined;
 pub use focus::Focus;
 pub use geom::{Point, Rect, Size};
 pub use input::{DebounceConfig, Debouncer, Edge, EncoderDecoder};
@@ -77,7 +79,9 @@ pub use text::{
     FORMAT_BUF, TextStyle, format_ms_x10, format_percent, format_u16, format_x10, measure,
 };
 pub use widget::{
-    Background, CrossAlign, Edges, Expanded, Fixed, HStack, MainAlign, MeasureCx, Padding, VStack,
+    Background, CrossAlign, Edges, Expanded, Fixed, HStack, Highlight, HighlightState, MainAlign,
+    Marquee, MarqueeState, MeasureCx, Padding, Slider, SliderState, Toast, ToastState, Toggle,
+    ToggleState, VStack,
     Widget,
 };
 

@@ -25,9 +25,10 @@ use embassy_time::{Duration, Timer};
 
 use crate::app::App;
 use crate::band::BandSink;
+use crate::band::BandBuffers;
 use crate::dirty::Dirty;
 use crate::event::Event;
-use crate::flush::{RenderCfg, flush};
+use crate::flush::{RenderCfg, flush_pipelined};
 
 /// Number of queued input events in [`ui_task`].
 pub const EVENT_QUEUE: usize = 8;
@@ -64,15 +65,12 @@ impl Default for UiConfig {
 
 /// Runs the UI frame loop forever.
 ///
-/// `band_b` is only used while the app reports a crossfade; pass a second
-/// stripe. Both buffers must be at least
-/// [`RenderCfg::band_buffer_len`](crate::flush::RenderCfg::band_buffer_len)
-/// bytes.
-pub async fn ui_task<A, S>(
+/// `buffers` holds the band buffers; size it from
+/// [`RenderCfg::band_buffer_len`](crate::flush::RenderCfg::band_buffer_len).
+pub async fn ui_task<A, S, const LEN: usize>(
     app: &mut A,
     sink: &mut S,
-    band_a: &mut [u8],
-    band_b: &mut [u8],
+    buffers: &mut BandBuffers<LEN>,
     events: &mut Receiver<'static, CriticalSectionRawMutex, Event, EVENT_QUEUE>,
     latency: &mut WatchReceiver<'static, CriticalSectionRawMutex, u16, LATENCY_SLOTS>,
     cfg: UiConfig,
@@ -105,7 +103,7 @@ where
             continue;
         }
 
-        flush(app, sink, &dirty, now_us, band_a, Some(band_b), &cfg.render).await?;
+        flush_pipelined(app, sink, &dirty, now_us, buffers, &cfg.render).await?;
         dirty.clear();
 
         // Input that arrived while the bands were being painted is handled

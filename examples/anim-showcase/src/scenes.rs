@@ -12,6 +12,7 @@
 //! produce the same pixels; if a scene painted outside its dirty rect the two
 //! would disagree and the panel would keep stale fragments.
 
+use utsuroui::anim::{Orbit, wave};
 use utsuroui::app::App;
 use utsuroui::color::{BLACK, DARK_GRAY, GRAY, Rgb565, WHITE, YELLOW};
 use utsuroui::dirty::DirtyList;
@@ -37,23 +38,6 @@ const LIME: Rgb565 = Rgb565::new(12, 60, 10);
 pub const SCENE_NAMES: [&str; 4] = ["Waveform", "Ticker", "Float", "Spectrum"];
 
 // --- shared math -----------------------------------------------------------
-
-/// A smooth periodic wave: `turn` wraps every 65 536 and the result is
-/// `-4096..=4096`. A parabola rather than a true sine; it is cheap integer math
-/// and reads as a smooth oscillation at panel resolution.
-fn wobble(turn: u16) -> i16 {
-    let half = if turn < 32_768 {
-        turn as i32
-    } else {
-        65_536 - turn as i32
-    };
-    let y = (half * (32_768 - half)) / 65_536;
-    if turn < 32_768 {
-        y as i16
-    } else {
-        -(y as i16)
-    }
-}
 
 /// Integer square root (floor), for circle spans.
 fn isqrt(value: i32) -> i16 {
@@ -81,6 +65,7 @@ fn fill_circle(cx: &mut PaintCx<'_>, center: Point, radius: i16, color: Rgb565) 
 }
 
 /// One screen of the showcase.
+#[allow(clippy::large_enum_variant)]
 enum Scene {
     Wave(Wave),
     Ticker(Ticker),
@@ -151,8 +136,8 @@ impl Wave {
     fn synth(&mut self) -> i16 {
         self.step = self.step.wrapping_add(1);
         let t = self.step;
-        let slow = wobble(t.wrapping_mul(140) as u16) as i32 / 3;
-        let fast = wobble(t.wrapping_mul(1_090) as u16) as i32 / 4;
+        let slow = wave(t.wrapping_mul(140) as u16) as i32 / 3;
+        let fast = wave(t.wrapping_mul(1_090) as u16) as i32 / 4;
         let noise =
             (((t.wrapping_mul(1_103_515_245).wrapping_add(12_345)) >> 16) & 0x1FF) as i32 - 256;
         (slow + fast + noise).clamp(-4_096, 4_096) as i16
@@ -265,6 +250,7 @@ impl Ticker {
         });
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn marquee(
         &self,
         cx: &mut PaintCx<'_>,
@@ -326,12 +312,7 @@ struct Blob {
 
 impl Blob {
     fn position(&self, now_us: u64) -> Point {
-        let turn = ((now_us % self.period_us as u64) * 65_536 / self.period_us as u64) as u16;
-        let dx = (self.amplitude.0 as i32 * wobble(turn.wrapping_add(self.phase)) as i32) / 4_096;
-        let dy = (self.amplitude.1 as i32
-            * wobble(turn.wrapping_add(self.phase).wrapping_add(16_384)) as i32)
-            / 4_096;
-        Point::new(self.base.x + dx as i16, self.base.y + dy as i16)
+        Orbit::new(self.base, self.amplitude, self.period_us, self.phase).position(now_us)
     }
 
     fn bounds(&self, center: Point) -> Rect {

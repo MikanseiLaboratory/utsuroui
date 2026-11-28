@@ -11,7 +11,7 @@ use utsuroui::color::{Rgb565, raw_u16};
 use utsuroui::dirty::Dirty;
 use utsuroui::event::Event;
 use utsuroui_demo::app::{DemoApp, NavMode, ScreenId};
-use utsuroui_demo::render::{BAND_LEN, FRAME_LEN, render_frame};
+use utsuroui_demo::render::{FRAME_LEN, render_frame};
 use utsuroui_demo::style::{H, SCREEN, W};
 
 fn golden_dir() -> PathBuf {
@@ -63,14 +63,12 @@ fn write_png(path: &Path, rgb: &[u8]) {
 
 fn render(app: &DemoApp, now_us: u64) -> Vec<u8> {
     let mut frame = vec![0u8; FRAME_LEN];
-    let mut band_a = vec![0u8; BAND_LEN];
-    let mut band_b = vec![0u8; BAND_LEN];
+    let mut buffers = utsuroui_demo::render::BandBuf::new();
     pollster::block_on(render_frame(
         app,
         now_us,
         &mut frame,
-        &mut band_a,
-        &mut band_b,
+        &mut buffers,
     ));
     frame
 }

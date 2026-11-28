@@ -52,7 +52,7 @@ const FRAME_BUDGET_US: u32 = 16_667;
 
 static EVENTS: Channel<CriticalSectionRawMutex, Event, EVENT_QUEUE> = Channel::new();
 static LATENCY: Watch<CriticalSectionRawMutex, u16, LATENCY_SLOTS> = Watch::new();
-static STRIPS: StaticCell<[u8; 2 * STRIP_BYTES]> = StaticCell::new();
+static BUFFERS: StaticCell<utsuroui::BandBuffers<STRIP_BYTES>> = StaticCell::new();
 
 #[embassy_executor::main]
 async fn main(spawner: Spawner) {
@@ -83,16 +83,14 @@ async fn main(spawner: Spawner) {
 async fn run_ui<S: BandSink>(app: &mut scenes::Showcase, sink: &mut S) {
     let mut events = EVENTS.receiver();
     let mut latency = LATENCY.receiver().expect("latency watch has a receiver");
-    let strips = STRIPS.init([0u8; 2 * STRIP_BYTES]);
-    let (band_a, band_b) = strips.split_at_mut(STRIP_BYTES);
+    let buffers = BUFFERS.init(utsuroui::BandBuffers::new());
 
     let cfg = UiConfig::new(RenderCfg::new(utsuroui::SCREEN, BAND_H), FRAME_BUDGET_US);
 
     if let Err(error) = utsuroui::embassy_task::ui_task(
         app,
         sink,
-        band_a,
-        band_b,
+        buffers,
         &mut events,
         &mut latency,
         cfg,

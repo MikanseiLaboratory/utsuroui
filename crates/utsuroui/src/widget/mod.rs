@@ -4,10 +4,23 @@
 //! retained part is their `State`, which lives as long as the screen state and
 //! remembers the arranged rectangles.
 
+use crate::dirty::DirtyList;
 use crate::event::{Event, EventOut};
 use crate::geom::{Rect, Size};
 use crate::paint::PaintCx;
 use embedded_graphics::pixelcolor::Rgb565;
+
+pub mod highlight;
+pub mod marquee;
+pub mod slider;
+pub mod toast;
+pub mod toggle;
+
+pub use highlight::{Highlight, HighlightState};
+pub use marquee::{Marquee, MarqueeState};
+pub use slider::{Slider, SliderState};
+pub use toast::{Toast, ToastState};
+pub use toggle::{Toggle, ToggleState};
 
 /// Constraints handed to [`Widget::measure`].
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -37,6 +50,15 @@ pub trait Widget {
     /// Handles an input event.
     fn event(&self, event: &Event, state: &mut Self::State, out: &mut EventOut, now_us: u64) {
         let _ = (event, state, out, now_us);
+    }
+
+    /// Advances animations; returns whether a frame is still needed.
+    ///
+    /// Animated widgets mark every rectangle whose pixels they changed, so the
+    /// renderer can send just that band.
+    fn tick(&self, state: &mut Self::State, now_us: u64, dirty: &mut DirtyList) -> bool {
+        let _ = (state, now_us, dirty);
+        false
     }
 
     /// Paints into the current band.

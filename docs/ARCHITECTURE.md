@@ -44,8 +44,10 @@ sequenceDiagram
 
 - 帯は dirty 矩形の `y` 範囲だけを回り、幅は dirty の幅を使う。
   横 40 px の更新なら 40×16×2 B だけ送る。
-- 描画と転送は直列（DESIGN.md §2 の MVP 宣言）。帯ごとに `.await` するので
-  入力タスクは動ける。DMA との真のオーバーラップは実測してから入れる。
+- 描画と転送は**パイプライン**（`flush_pipelined`）。描画ループと転送ループを
+  1 タスク内の 2 future として `join` し、`BandBuffers` の 2 枚を
+  `Channel` で受け渡す。転送（DMA）が走っている間に次帯を描く。
+  帯ごとに `.await` するので入力タスクも動ける。
 - バイト列は RGB565 の**ビッグエンディアン**。`lcd-async` の
   `IntoRawBytes` と同じ順序で、`color::be_bytes` とゴールデンで固定している。
 

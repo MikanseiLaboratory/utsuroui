@@ -48,6 +48,7 @@ jobs:
         run: |
           cargo test -p utsuroui --features full-fb
           cargo test -p utsuroui --features u8g2
+          cargo test -p utsuroui --features pipeline
 
       - name: Check the lcd adapter builds on the host
         run: cargo check -p utsuroui --features lcd

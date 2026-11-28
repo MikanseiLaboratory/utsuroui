@@ -4,6 +4,7 @@ members = [
     "crates/utsuroui",
     "crates/utsuroui-demo",
     "examples/anim-showcase",
+    "examples/gui-showcase",
     "examples/spi1-panel",
     "examples/pico-tft",
 ]

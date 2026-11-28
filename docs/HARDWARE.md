@@ -10,7 +10,8 @@ example の README と `src/panel.rs` を確認すること。`examples/anim-sho
 | `examples/spi1-panel` | GPIO を下記のとおり配線した機器 | 240×320 ST7789（反転） | **SPI1** |
 
 `spi1-panel` は特定の基板を前提にしない。必要なのは下の GPIO を揃えることだけで、
-他のピンや周辺チップには触らない。
+他のピンや周辺チップには触らない。`anim-showcase` と `gui-showcase` は同じ配線を
+使う（パネル 6 本 + キー 4 本）。
 
 ## Pico / Pico 2（`examples/pico-tft`）
 
