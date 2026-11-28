@@ -1,6 +1,8 @@
 # gui-showcase — a small UI built from the framework's widgets
 
-Two screens on a 240x320 ST7789, wired to SPI1 with four keys. Everything the user can see is animated through dirty rectangles: a selection bar slides, a switch knob moves, a slider fill eases, a toast slides up, and a screen change slides sideways. When nothing moves, no SPI traffic happens.
+Two screens on a 240x320 ST7789, wired to SPI1 with four keys.  
+Everything the user can see is animated through dirty rectangles: a selection bar slides, a switch knob moves, a slider fill eases, a toast slides up, and a screen change slides sideways.  
+When nothing moves, no SPI traffic happens.
 
 | Home | Controls |
 |---|---|
@@ -31,7 +33,8 @@ cd examples/gui-showcase
 probe-rs run --chip rp2040 --protocol swd --speed 100
 ```
 
-Panel: SPI1 with MOSI GP11, SCK GP14, CS GP13, DC GP22, RST GP27, BL GP28 — the same wiring as `examples/spi1-panel`. `defmt` logs are available over RTT.
+Panel: SPI1 with MOSI GP11, SCK GP14, CS GP13, DC GP22, RST GP27, BL GP28 — the same wiring as `examples/spi1-panel`.  
+`defmt` logs are available over RTT.
 
 The screens can be rendered on the host for review:
 
