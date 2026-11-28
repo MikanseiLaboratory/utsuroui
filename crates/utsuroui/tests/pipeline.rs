@@ -84,7 +84,7 @@ fn transfer_and_paint_overlap() {
     let starts = events.iter().filter(|e| **e == "transfer-start").count();
     let ends = events.iter().filter(|e| **e == "transfer-end").count();
     assert_eq!(starts, ends, "unbalanced transfers: {events:?}");
-    assert_eq!(starts, 20, "a full 320-row flush is 20 bands of 16 rows");
+    assert_eq!(starts, 15, "a full 240-row flush is 15 bands of 16 rows");
 }
 
 #[test]
@@ -94,14 +94,14 @@ fn pipelined_and_serial_flush_agree() {
     dirty.mark_full();
     let cfg = RenderCfg::new(SCREEN, BAND_H);
 
-    let mut serial_frame = vec![0u8; 240 * 320 * 2];
+    let mut serial_frame = vec![0u8; 240 * 240 * 2];
     {
         let mut buffers = BandBuffers::<LEN>::new();
         let mut sink = MemorySink::new(&mut serial_frame, 240);
         pollster::block_on(flush(&app, &mut sink, &dirty, 0, &mut buffers, &cfg)).expect("flush");
     }
 
-    let mut pipelined_frame = vec![0u8; 240 * 320 * 2];
+    let mut pipelined_frame = vec![0u8; 240 * 240 * 2];
     {
         let mut buffers = BandBuffers::<LEN>::new();
         let mut sink = MemorySink::new(&mut pipelined_frame, 240);

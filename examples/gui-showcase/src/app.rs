@@ -33,11 +33,11 @@ const ITEMS: [(&str, &str); 4] = [
 ];
 
 const LIST: Rect = Rect::new(MARGIN, LIST_TOP, CONTENT_W, ROW_H * ROWS as u16);
-const TOGGLE_0: Rect = Rect::new(MARGIN, 64, CONTENT_W, 40);
-const TOGGLE_1: Rect = Rect::new(MARGIN, 112, CONTENT_W, 40);
-const SLIDER_ROW: Rect = Rect::new(MARGIN, 168, CONTENT_W, 44);
-const READOUT: Rect = Rect::new(MARGIN, 224, CONTENT_W, 28);
-const TOAST_ROW: Rect = Rect::new(MARGIN, 258, CONTENT_W, 28);
+const TOGGLE_0: Rect = Rect::new(MARGIN, 52, CONTENT_W, 36);
+const TOGGLE_1: Rect = Rect::new(MARGIN, 94, CONTENT_W, 36);
+const SLIDER_ROW: Rect = Rect::new(MARGIN, 148, CONTENT_W, 40);
+const READOUT: Rect = Rect::new(MARGIN, 188, CONTENT_W, 20);
+const TOAST_ROW: Rect = Rect::new(MARGIN, 208, CONTENT_W, 26);
 const SLIDE_US: u64 = 180_000;
 
 /// The two screens.
@@ -176,19 +176,15 @@ impl GuiApp {
             Screen::Controls => self.paint_controls(cx, dx, now_us),
         }
 
-        // Footer hint (only when the screen is settled).
+        // Footer hint. It is always drawn: the toast paints over it, and its
+        // dirty rectangle covers this area when it leaves, so the hint comes
+        // back without a stale-pixel window.
         if dx == 0 {
             let hint = match screen {
                 Screen::Home => "MENU/PREV move  INPUT1 open",
                 Screen::Controls => "MENU/PREV move  INPUT1 change",
             };
             cx.text(hint, Point::new(MARGIN, FOOTER_Y), TextStyle::Small, MUTED);
-            cx.text(
-                "BACK: home",
-                Point::new(MARGIN, FOOTER_Y + 12),
-                TextStyle::Small,
-                MUTED,
-            );
         }
     }
 
@@ -244,7 +240,7 @@ impl GuiApp {
             widget.arrange(row.translate(dx, 0), &mut states[index]);
             cx.text(
                 labels[index],
-                Point::new(row.x + 8 + dx, row.y + 14),
+                Point::new(row.x + 8 + dx, row.y + 12),
                 TextStyle::Medium,
                 TEXT,
             );
@@ -259,7 +255,7 @@ impl GuiApp {
             .arrange(SLIDER_ROW.translate(dx, 0), &mut slider_state);
         cx.text(
             "Brightness",
-            Point::new(SLIDER_ROW.x + 8 + dx, SLIDER_ROW.y - 14),
+            Point::new(SLIDER_ROW.x + 8 + dx, SLIDER_ROW.y - 12),
             TextStyle::Small,
             MUTED,
         );

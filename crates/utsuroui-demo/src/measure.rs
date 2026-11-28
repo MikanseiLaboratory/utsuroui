@@ -137,7 +137,7 @@ impl MeasureState {
             ("MAX", self.max_x10),
         ];
         for (i, (label, value)) in rows.iter().enumerate() {
-            let y = origin.y + STATS_RECT.y + i as i16 * 18;
+            let y = origin.y + STATS_RECT.y + i as i16 * 16;
             cx.text(
                 label,
                 Point::new(origin.x + STATS_RECT.x, y),
@@ -174,13 +174,5 @@ impl MeasureState {
             let y = baseline - h as i16;
             cx.fill_rect(Rect::new(x, y, bar_w, h), ACCENT);
         }
-
-        // Hint line under the graph, above the shared footer.
-        cx.text(
-            "B: freeze   A hold: back",
-            Point::new(origin.x + 16, origin.y + 228),
-            TextStyle::Small,
-            DIM,
-        );
     }
 }

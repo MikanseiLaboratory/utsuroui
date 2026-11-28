@@ -1,4 +1,4 @@
-//! RP2040 / RP2350 firmware example: `utsuroui` on a 240x320 ST7789 panel.
+//! RP2040 / RP2350 firmware example: `utsuroui` on a 240x240 ST7789 panel.
 //!
 //! Wiring and clock notes live in `docs/HARDWARE.md`; the layout is the same on
 //! both chips (GP18/GP19 SPI, GP16 CS, GP17 DC, GP20 RST, GP21 BL, GP14/GP15
@@ -135,7 +135,7 @@ async fn run_ui<S: BandSink>(mut sink: S) {
     let mut latency = LATENCY.receiver().expect("latency watch has a receiver");
     let buffers = BUFFERS.init(utsuroui::BandBuffers::new());
 
-    let cfg = UiConfig::new(RenderCfg::new(utsuroui::SCREEN, BAND_H), 22_000);
+    let cfg = UiConfig::new(RenderCfg::new(utsuroui_demo::style::SCREEN, BAND_H), 22_000);
 
     if let Err(error) = utsuroui::embassy_task::ui_task(
         &mut app,

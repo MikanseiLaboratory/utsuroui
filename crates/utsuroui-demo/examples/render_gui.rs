@@ -55,9 +55,9 @@ fn write_png(path: &Path, rgb: &[u8]) {
 }
 
 fn render_full(app: &app::GuiApp, now: u64, frame: &mut [u8]) {
-    let mut dirty = Dirty::new(utsuroui::SCREEN);
+    let mut dirty = Dirty::new(utsuroui_demo::style::SCREEN);
     dirty.mark_full();
-    let cfg = RenderCfg::new(utsuroui::SCREEN, BAND_H);
+    let cfg = RenderCfg::new(utsuroui_demo::style::SCREEN, BAND_H);
     let mut buffers = utsuroui::BandBuffers::<BAND_LEN>::new();
     let mut sink = MemorySink::new(frame, style::W);
     pollster::block_on(flush(app, &mut sink, &dirty, now, &mut buffers, &cfg)).expect("flush");
@@ -82,29 +82,29 @@ fn main() {
 
     // 2. Home, third card selected after the bar slid.
     let mut app = app::GuiApp::new();
-    let mut dirty = Dirty::new(utsuroui::SCREEN);
+    let mut dirty = Dirty::new(utsuroui_demo::style::SCREEN);
     app.event(&Event::Next, 0, &mut dirty);
     app.event(&Event::Next, 0, &mut dirty);
-    app.tick(200_000, &mut Dirty::new(utsuroui::SCREEN));
+    app.tick(200_000, &mut Dirty::new(utsuroui_demo::style::SCREEN));
     render_full(&app, 200_000, &mut frame);
     write_png(&out.join("home_selected.png"), &frame_to_rgb(&frame));
 
     // 3. Halfway through the slide to the controls screen.
     let mut app = app::GuiApp::new();
-    let mut dirty = Dirty::new(utsuroui::SCREEN);
+    let mut dirty = Dirty::new(utsuroui_demo::style::SCREEN);
     app.event(&Event::Select, 0, &mut dirty);
     render_full(&app, 90_000, &mut frame);
     write_png(&out.join("slide_mid.png"), &frame_to_rgb(&frame));
 
     // 4. Controls, with the toggle flipped and the toast sliding up.
     let mut app = app::GuiApp::new();
-    let mut dirty = Dirty::new(utsuroui::SCREEN);
+    let mut dirty = Dirty::new(utsuroui_demo::style::SCREEN);
     app.event(&Event::Select, 0, &mut dirty); // open controls
-    app.tick(200_000, &mut Dirty::new(utsuroui::SCREEN));
-    let mut dirty = Dirty::new(utsuroui::SCREEN);
+    app.tick(200_000, &mut Dirty::new(utsuroui_demo::style::SCREEN));
+    let mut dirty = Dirty::new(utsuroui_demo::style::SCREEN);
     app.event(&Event::Select, 200_000, &mut dirty); // flip the focused toggle
-    app.tick(260_000, &mut Dirty::new(utsuroui::SCREEN));
-    render_full(&app, 260_000, &mut frame);
+    app.tick(430_000, &mut Dirty::new(utsuroui_demo::style::SCREEN));
+    render_full(&app, 430_000, &mut frame);
     write_png(&out.join("controls.png"), &frame_to_rgb(&frame));
     write_png(
         &docs.join("gui_home.png"),

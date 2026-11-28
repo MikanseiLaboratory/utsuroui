@@ -9,7 +9,7 @@ use crate::style::{ACCENT, DIM, FG, VERSION};
 /// Lines shown under the title.
 pub const LINES: &[&str] = &[
     "dirty-rect embedded GUI",
-    "240x320 RGB565 / ST7789",
+    "240x240 RGB565 / ST7789",
     "RP2040 + RP2350 / Embassy",
     "MIT OR Apache-2.0",
     "design: DESIGN.md",
@@ -17,7 +17,7 @@ pub const LINES: &[&str] = &[
 
 /// Paints the about screen body.
 pub fn paint(cx: &mut PaintCx<'_>, origin: Point) {
-    let mut y = origin.y + 64;
+    let mut y = origin.y + 52;
     cx.text(
         "utsuroui",
         Point::new(origin.x + 16, y),
@@ -26,14 +26,14 @@ pub fn paint(cx: &mut PaintCx<'_>, origin: Point) {
     );
     y += 26;
     cx.text(VERSION, Point::new(origin.x + 16, y), TextStyle::Small, DIM);
-    y += 26;
+    y += 20;
     for line in LINES {
         cx.text(line, Point::new(origin.x + 16, y), TextStyle::Small, FG);
-        y += 16;
+        y += 14;
     }
     cx.text(
         "MikanseiLaboratory",
-        Point::new(origin.x + 16, origin.y + 226),
+        Point::new(origin.x + 16, origin.y + 172),
         TextStyle::Small,
         DIM,
     );

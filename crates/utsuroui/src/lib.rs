@@ -1,6 +1,6 @@
 //! # utsuroui
 //!
-//! A small, allocation-free GUI for 240x320 RGB565 SPI TFTs (ST7789 / ILI9341)
+//! A small, allocation-free GUI for 240x240 RGB565 SPI TFTs (ST7789 / ILI9341)
 //! on any Embassy target that can drive a display and provide timers.
 //!
 //! The core has no HAL dependency: it needs `embedded-graphics` for drawing and,
@@ -85,4 +85,4 @@ pub use widget::{
 };
 
 /// The nominal screen size of the reference device.
-pub const SCREEN: Rect = Rect::new(0, 0, 240, 320);
+pub const SCREEN: Rect = Rect::new(0, 0, 240, 240);

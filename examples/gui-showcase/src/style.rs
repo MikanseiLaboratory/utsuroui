@@ -9,7 +9,7 @@ use utsuroui::geom::Rect;
 /// Panel width in pixels.
 pub const W: u16 = 240;
 /// Panel height in pixels.
-pub const H: u16 = 320;
+pub const H: u16 = 240;
 /// The full screen.
 pub const SCREEN: Rect = Rect::new(0, 0, W, H);
 
@@ -35,9 +35,9 @@ pub const MARGIN: i16 = 8;
 /// Content width.
 pub const CONTENT_W: u16 = 224;
 /// Y of the footer hint.
-pub const FOOTER_Y: i16 = 292;
+pub const FOOTER_Y: i16 = 226;
 
 /// First card row.
-pub const LIST_TOP: i16 = 56;
+pub const LIST_TOP: i16 = 42;
 /// One card row.
-pub const ROW_H: u16 = 56;
+pub const ROW_H: u16 = 44;

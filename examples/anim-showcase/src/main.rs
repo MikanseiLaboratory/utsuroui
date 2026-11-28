@@ -1,4 +1,4 @@
-//! Animation showcase: four scenes on a 240x320 ST7789 panel, switched with the keys.
+//! Animation showcase: four scenes on a 240x240 ST7789 panel, switched with the keys.
 //!
 //! * **Waveform** — a scrolling audio trace (one dirty band per frame).
 //! * **Ticker** — a marquee plus a vertically scrolling log.

@@ -26,7 +26,7 @@ fn highlight_move_transfers_only_the_highlight_path() {
     app.tick(now + 16_000, &mut moved);
     assert!(!moved.is_empty());
 
-    let mut frame = vec![0u8; 240 * 320 * 2];
+    let mut frame = vec![0u8; 240 * 240 * 2];
     let mut buffers = utsuroui_demo::render::BandBuf::new();
     let cfg = RenderCfg::new(SCREEN, BAND_H);
     let stats = {
@@ -62,14 +62,14 @@ fn full_redraw_is_one_screen() {
     let mut dirty = Dirty::new(SCREEN);
     dirty.mark_full();
     let mut buffers = utsuroui_demo::render::BandBuf::new();
-    let mut frame = vec![0u8; 240 * 320 * 2];
+    let mut frame = vec![0u8; 240 * 240 * 2];
     let cfg = RenderCfg::new(SCREEN, BAND_H);
     let stats = {
         let mut sink = utsuroui::band::MemorySink::new(&mut frame, 240);
         pollster::block_on(flush(&app, &mut sink, &dirty, 0, &mut buffers, &cfg)).unwrap()
     };
-    assert_eq!(stats.bands, 20);
-    assert_eq!(stats.bytes, 240 * 320 * 2);
+    assert_eq!(stats.bands, 15); // 240 / 16
+    assert_eq!(stats.bytes, 240 * 240 * 2);
 }
 
 /// A minimal app used to prove the renderer works on arbitrary screens too.
@@ -87,7 +87,7 @@ impl App for Solid {
 
 #[test]
 fn arbitrary_app_renders() {
-    let mut frame = vec![0u8; 240 * 320 * 2];
+    let mut frame = vec![0u8; 240 * 240 * 2];
     let mut buffers = utsuroui_demo::render::BandBuf::new();
     let mut dirty = Dirty::new(SCREEN);
     dirty.add(Rect::new(0, 0, 240, 80));

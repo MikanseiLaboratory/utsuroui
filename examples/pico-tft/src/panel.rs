@@ -28,7 +28,7 @@ use lcd_async::options::{ColorOrder, Orientation};
 /// Panel width in pixels.
 pub const WIDTH: u16 = 240;
 /// Panel height in pixels.
-pub const HEIGHT: u16 = 320;
+pub const HEIGHT: u16 = 240;
 
 /// SPI clock. 31.25 MHz is `clk_peri / 4` on the default 125 MHz peripheral
 /// clock. Raise it only after checking the module on real hardware

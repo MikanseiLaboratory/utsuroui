@@ -1,6 +1,6 @@
 [package]
 name = "gui-showcase"
-description = "High-UX GUI demo: cards, switches, a slider and a toast on 240x320"
+description = "High-UX GUI demo: cards, switches, a slider and a toast on 240x240"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

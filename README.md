@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/MikanseiLaboratory/utsuroui/actions/workflows/ci.yml/badge.svg)](https://github.com/MikanseiLaboratory/utsuroui/actions/workflows/ci.yml)
 
-A small GUI framework for 240x320 SPI TFTs (ST7789 / ILI9341) on Embassy.
+A small GUI framework for 240x240 SPI TFTs (ST7789 / ILI9341) on Embassy.
 
 It exists for panels with no framebuffer to spare: the screen is painted in 16-row bands and only the rectangles that changed are sent.  
 The panel transfer runs while the CPU paints the next band, so a full-width animation stays smooth on an RP2040 without ever allocating a full frame.

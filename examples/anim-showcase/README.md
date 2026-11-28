@@ -1,6 +1,6 @@
 # anim-showcase — animation demo firmware
 
-Four animation scenes on the same 240x320 ST7789 panel, in one firmware. Every
+Four animation scenes on the same 240x240 ST7789 panel, in one firmware. Every
 scene animates through dirty rectangles, so the SPI traffic matches what
 actually moved.
 

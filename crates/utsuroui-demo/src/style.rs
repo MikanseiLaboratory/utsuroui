@@ -11,7 +11,7 @@ use utsuroui::color::{BLACK, WHITE};
 /// Panel width in pixels.
 pub const W: u16 = 240;
 /// Panel height in pixels.
-pub const H: u16 = 320;
+pub const H: u16 = 240;
 /// The full screen.
 pub const SCREEN: Rect = Rect::new(0, 0, W, H);
 
@@ -26,13 +26,13 @@ pub const CONTENT_W: u16 = 224;
 /// Y of the first menu row.
 pub const MENU_TOP: i16 = 44;
 /// Y of the footer separator.
-pub const FOOTER_Y: i16 = 246;
+pub const FOOTER_Y: i16 = 186;
 /// Y of the big latency readout.
-pub const READOUT_Y: i16 = 250;
+pub const READOUT_Y: i16 = 190;
 /// Y of the latency bar frame.
-pub const BAR_Y: i16 = 288;
+pub const BAR_Y: i16 = 222;
 /// Height of the latency bar.
-pub const BAR_H: u16 = 14;
+pub const BAR_H: u16 = 12;
 
 /// Title shown on the menu screen.
 pub const TITLE: &str = "UTSUROUI";
@@ -65,9 +65,9 @@ pub const DIM: Rgb565 = GRAY;
 pub const ACCENT: Rgb565 = YELLOW;
 
 /// Height of the settings rows.
-pub const SETTING_ROW_H: u16 = 30;
+pub const SETTING_ROW_H: u16 = 28;
 /// Y of the first settings row.
-pub const SETTINGS_TOP: i16 = 64;
+pub const SETTINGS_TOP: i16 = 52;
 
 /// The rect of one menu row.
 pub const fn row_rect(index: u8) -> Rect {
@@ -96,10 +96,10 @@ pub const READOUT_RECT: Rect = Rect::new(12, READOUT_Y, 216, 20);
 pub const BAR_RECT: Rect = Rect::new(12, BAR_Y, 216, BAR_H);
 
 /// The rect of the graph frame on the measure screen.
-pub const GRAPH_RECT: Rect = Rect::new(16, 148, 208, 76);
+pub const GRAPH_RECT: Rect = Rect::new(16, 124, 208, 56);
 
 /// The rect holding the min/avg/max rows on the measure screen.
-pub const STATS_RECT: Rect = Rect::new(16, 84, 208, 54);
+pub const STATS_RECT: Rect = Rect::new(16, 72, 208, 48);
 
 /// Clamps a tenths value to the bar scale and returns the bar fill width.
 pub fn bar_width(value_x10: u16, scale_x10: u16) -> u16 {

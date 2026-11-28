@@ -6,7 +6,7 @@
 //!
 //! Outputs:
 //!
-//! * `target/golden/*.png` — the golden-image frames (240x320).
+//! * `target/golden/*.png` — the golden-image frames (240x240).
 //! * `docs/images/*.png` — 2x screenshots for the README.
 //!
 //! Regenerating the committed goldens is the job of

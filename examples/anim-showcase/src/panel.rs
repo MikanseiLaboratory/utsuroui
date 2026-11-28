@@ -1,4 +1,4 @@
-//! ST7789 panel on SPI1 (240x320, inverted module).
+//! ST7789 panel on SPI1 (240x240, inverted module).
 //!
 //! | Signal | GPIO |
 //! |---|---|
@@ -24,7 +24,7 @@ use lcd_async::options::{ColorInversion, ColorOrder, Orientation};
 /// Panel width in pixels.
 pub const WIDTH: u16 = 240;
 /// Panel height in pixels.
-pub const HEIGHT: u16 = 320;
+pub const HEIGHT: u16 = 240;
 
 /// Requested SPI clock. The driver rounds this to `clk_peri` / 4 (31.25 MHz).
 pub const SPI_HZ: u32 = 62_500_000;

@@ -1,6 +1,6 @@
 # gui-showcase — a small UI built from the framework's widgets
 
-Two screens on a 240x320 ST7789, wired to SPI1 with four keys.  
+Two screens on a 240x240 ST7789, wired to SPI1 with four keys.  
 Everything the user can see is animated through dirty rectangles: a selection bar slides, a switch knob moves, a slider fill eases, a toast slides up, and a screen change slides sideways.  
 When nothing moves, no SPI traffic happens.
 

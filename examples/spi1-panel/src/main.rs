@@ -1,4 +1,4 @@
-//! `utsuroui` on a 240x320 ST7789 panel wired to **SPI1**, with an 8-key
+//! `utsuroui` on a 240x240 ST7789 panel wired to **SPI1**, with an 8-key
 //! front panel.
 //!
 //! Panel: SCK GP14, MOSI GP11, CS GP13, DC GP22, RST GP27, BL GP28.
@@ -96,7 +96,7 @@ async fn run_ui<S: BandSink>(mut sink: S) {
     let mut latency = LATENCY.receiver().expect("latency watch has a receiver");
     let buffers = BUFFERS.init(utsuroui::BandBuffers::new());
 
-    let cfg = UiConfig::new(RenderCfg::new(utsuroui::SCREEN, BAND_H), 22_000);
+    let cfg = UiConfig::new(RenderCfg::new(utsuroui_demo::style::SCREEN, BAND_H), 22_000);
 
     if let Err(error) = utsuroui::embassy_task::ui_task(
         &mut app,

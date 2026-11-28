@@ -154,7 +154,7 @@ fn crossfade_reports_alpha_and_paints_under() {
         &mut frame,
         &mut buffers,
     ));
-    assert!(stats.bytes >= 240 * 320 * 2);
+    assert!(stats.bytes >= 240 * 240 * 2);
     // The blend of menu and measure is neither pure black nor pure white.
     assert!(frame.iter().any(|b| *b != 0));
 }

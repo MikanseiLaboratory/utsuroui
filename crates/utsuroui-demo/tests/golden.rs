@@ -175,7 +175,7 @@ fn golden_crossfade_mid() {
 }
 
 #[test]
-fn screen_and_golden_geometry_is_240x320() {
+fn screen_and_golden_geometry_is_240x240() {
     // The README screenshots and every golden use the same geometry.
     assert_eq!(SCREEN.w, W);
     assert_eq!(SCREEN.h, H);

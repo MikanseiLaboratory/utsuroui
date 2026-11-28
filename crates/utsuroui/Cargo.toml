@@ -1,6 +1,6 @@
 [package]
 name = "utsuroui"
-description = "Dirty-rect GUI for 240x320 SPI TFTs: no_std, no-alloc, embedded-graphics + Embassy"
+description = "Dirty-rect GUI for 240x240 SPI TFTs: no_std, no-alloc, embedded-graphics + Embassy"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

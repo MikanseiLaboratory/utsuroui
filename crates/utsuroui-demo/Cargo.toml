@@ -1,6 +1,6 @@
 [package]
 name = "utsuroui-demo"
-description = "Demo application for utsuroui (240x320, two buttons)"
+description = "Demo application for utsuroui (240x240, two buttons)"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
