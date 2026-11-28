@@ -12,6 +12,7 @@
 //! produce the same pixels; if a scene painted outside its dirty rect the two
 //! would disagree and the panel would keep stale fragments.
 
+use utsuroui::anim::{Orbit, wave};
 use utsuroui::app::App;
 use utsuroui::color::{BLACK, DARK_GRAY, GRAY, Rgb565, WHITE, YELLOW};
 use utsuroui::dirty::DirtyList;
@@ -23,10 +24,10 @@ use utsuroui::text::{FORMAT_BUF, TextStyle, format_u16, measure};
 /// Screen width in pixels.
 pub const W: u16 = 240;
 /// Screen height in pixels.
-pub const H: u16 = 320;
+pub const H: u16 = 240;
 
 const HEADER_H: u16 = 34;
-const FOOTER_Y: i16 = 296;
+const FOOTER_Y: i16 = 220;
 
 const GRID: Rgb565 = DARK_GRAY;
 const CYAN: Rgb565 = Rgb565::new(0, 42, 30);
@@ -37,23 +38,6 @@ const LIME: Rgb565 = Rgb565::new(12, 60, 10);
 pub const SCENE_NAMES: [&str; 4] = ["Waveform", "Ticker", "Float", "Spectrum"];
 
 // --- shared math -----------------------------------------------------------
-
-/// A smooth periodic wave: `turn` wraps every 65 536 and the result is
-/// `-4096..=4096`. A parabola rather than a true sine; it is cheap integer math
-/// and reads as a smooth oscillation at panel resolution.
-fn wobble(turn: u16) -> i16 {
-    let half = if turn < 32_768 {
-        turn as i32
-    } else {
-        65_536 - turn as i32
-    };
-    let y = (half * (32_768 - half)) / 65_536;
-    if turn < 32_768 {
-        y as i16
-    } else {
-        -(y as i16)
-    }
-}
 
 /// Integer square root (floor), for circle spans.
 fn isqrt(value: i32) -> i16 {
@@ -81,6 +65,7 @@ fn fill_circle(cx: &mut PaintCx<'_>, center: Point, radius: i16, color: Rgb565) 
 }
 
 /// One screen of the showcase.
+#[allow(clippy::large_enum_variant)]
 enum Scene {
     Wave(Wave),
     Ticker(Ticker),
@@ -151,8 +136,8 @@ impl Wave {
     fn synth(&mut self) -> i16 {
         self.step = self.step.wrapping_add(1);
         let t = self.step;
-        let slow = wobble(t.wrapping_mul(140) as u16) as i32 / 3;
-        let fast = wobble(t.wrapping_mul(1_090) as u16) as i32 / 4;
+        let slow = wave(t.wrapping_mul(140) as u16) as i32 / 3;
+        let fast = wave(t.wrapping_mul(1_090) as u16) as i32 / 4;
         let noise =
             (((t.wrapping_mul(1_103_515_245).wrapping_add(12_345)) >> 16) & 0x1FF) as i32 - 256;
         (slow + fast + noise).clamp(-4_096, 4_096) as i16
@@ -228,7 +213,7 @@ const FEED_H: u16 = 66;
 const FEED_ROW: i16 = 22;
 
 const TEXT_A: &str = "* DIRTY-RECT ANIMATION SHOWCASE * ";
-const TEXT_B: &str = "EMBEDDED-GRAPHICS + EMBASSY + RP2040 + 240x320 * ";
+const TEXT_B: &str = "EMBEDDED-GRAPHICS + EMBASSY + RP2040 + 240x240 * ";
 
 const FEED: [&str; 10] = [
     "001  band flush, 16 rows",
@@ -255,7 +240,15 @@ impl Ticker {
 
     fn paint(&self, cx: &mut PaintCx<'_>, now_us: u64) {
         cx.with_clip(Rect::new(0, MARQUEE_A_Y, W, MARQUEE_A_H), |cx| {
-            self.marquee(cx, now_us, TEXT_A, MARQUEE_A_Y, 70, TextStyle::Medium, YELLOW);
+            self.marquee(
+                cx,
+                now_us,
+                TEXT_A,
+                MARQUEE_A_Y,
+                70,
+                TextStyle::Medium,
+                YELLOW,
+            );
         });
         cx.with_clip(Rect::new(0, MARQUEE_B_Y, W, MARQUEE_B_H), |cx| {
             self.marquee(cx, now_us, TEXT_B, MARQUEE_B_Y, 110, TextStyle::Small, CYAN);
@@ -265,6 +258,7 @@ impl Ticker {
         });
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn marquee(
         &self,
         cx: &mut PaintCx<'_>,
@@ -311,8 +305,8 @@ impl Ticker {
 // --- floating rings --------------------------------------------------------
 
 const BLOBS: usize = 5;
-const BLOB_TOP: i16 = 40;
-const BLOB_BOTTOM: i16 = 288;
+const BLOB_TOP: i16 = 44;
+const BLOB_BOTTOM: i16 = 212;
 
 struct Blob {
     base: Point,
@@ -326,12 +320,7 @@ struct Blob {
 
 impl Blob {
     fn position(&self, now_us: u64) -> Point {
-        let turn = ((now_us % self.period_us as u64) * 65_536 / self.period_us as u64) as u16;
-        let dx = (self.amplitude.0 as i32 * wobble(turn.wrapping_add(self.phase)) as i32) / 4_096;
-        let dy = (self.amplitude.1 as i32
-            * wobble(turn.wrapping_add(self.phase).wrapping_add(16_384)) as i32)
-            / 4_096;
-        Point::new(self.base.x + dx as i16, self.base.y + dy as i16)
+        Orbit::new(self.base, self.amplitude, self.period_us, self.phase).position(now_us)
     }
 
     fn bounds(&self, center: Point) -> Rect {
@@ -353,17 +342,17 @@ impl Float {
     fn new() -> Self {
         let blobs = [
             Blob {
-                base: Point::new(56, 88),
-                amplitude: (18, 14),
+                base: Point::new(56, 74),
+                amplitude: (12, 10),
                 period_us: 3_100_000,
                 phase: 0,
-                radius: 18,
+                radius: 16,
                 color: CYAN,
                 previous: Rect::EMPTY,
             },
             Blob {
-                base: Point::new(176, 84),
-                amplitude: (22, 16),
+                base: Point::new(184, 74),
+                amplitude: (12, 10),
                 period_us: 4_300_000,
                 phase: 12_000,
                 radius: 16,
@@ -371,17 +360,17 @@ impl Float {
                 previous: Rect::EMPTY,
             },
             Blob {
-                base: Point::new(116, 176),
-                amplitude: (30, 18),
+                base: Point::new(56, 130),
+                amplitude: (12, 10),
                 period_us: 5_100_000,
                 phase: 30_000,
-                radius: 22,
+                radius: 16,
                 color: LIME,
                 previous: Rect::EMPTY,
             },
             Blob {
-                base: Point::new(196, 250),
-                amplitude: (16, 12),
+                base: Point::new(184, 130),
+                amplitude: (12, 10),
                 period_us: 3_700_000,
                 phase: 50_000,
                 radius: 14,
@@ -389,8 +378,8 @@ impl Float {
                 previous: Rect::EMPTY,
             },
             Blob {
-                base: Point::new(52, 252),
-                amplitude: (20, 16),
+                base: Point::new(120, 186),
+                amplitude: (14, 10),
                 period_us: 4_900_000,
                 phase: 20_000,
                 radius: 16,
@@ -429,8 +418,8 @@ impl Float {
 const BARS: usize = 20;
 const BAR_W: i16 = 10;
 const BAR_GAP: i16 = 2;
-const BAR_BASE: i16 = 270;
-const BAR_TOP: i16 = 96;
+const BAR_BASE: i16 = 210;
+const BAR_TOP: i16 = 84;
 const BAR_MAX: i16 = BAR_BASE - BAR_TOP;
 
 struct Spectrum {
@@ -576,12 +565,18 @@ impl Showcase {
             let index = format_u16(self.index as u16 + 1, &mut buf);
             let suffix_w = measure("/4", TextStyle::Medium).w as i16;
             cx.text_right("/4", W as i16 - 8, 12, TextStyle::Medium, GRAY);
-            cx.text_right(index, W as i16 - 10 - suffix_w, 12, TextStyle::Medium, WHITE);
+            cx.text_right(
+                index,
+                W as i16 - 10 - suffix_w,
+                12,
+                TextStyle::Medium,
+                WHITE,
+            );
             cx.hline(HEADER_H as i16 - 1, 0, W as i16 - 1, GRID);
         });
 
         cx.with_clip(Rect::new(0, FOOTER_Y - 4, W, 28), |cx| {
-            cx.fill_rect(Rect::new(0, FOOTER_Y - 4, W, 28), BLACK);
+            cx.fill_rect(Rect::new(0, FOOTER_Y - 6, W, 26), BLACK);
             if self.paused {
                 cx.text(
                     "PAUSED",
@@ -599,7 +594,7 @@ impl Showcase {
             }
             cx.text(
                 "BACK: restart scene",
-                Point::new(8, FOOTER_Y + 10),
+                Point::new(8, FOOTER_Y + 8),
                 TextStyle::Small,
                 GRAY,
             );

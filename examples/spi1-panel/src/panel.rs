@@ -1,4 +1,4 @@
-//! ST7789 panel on SPI1 (240x320, inverted module).
+//! ST7789 panel on SPI1 (240x240, inverted module).
 //!
 //! This is the same driver as the generic Pico example; only the bus and the
 //! GPIO numbers differ. Rewire the pins below to match your own board.
@@ -14,7 +14,6 @@
 //! | BL | GP28 |
 //!
 
-
 use embassy_rp::Peri;
 use embassy_rp::gpio::{Level, Output};
 use embassy_rp::interrupt::typelevel::Binding;
@@ -29,7 +28,7 @@ use lcd_async::options::{ColorInversion, ColorOrder, Orientation};
 /// Panel width in pixels.
 pub const WIDTH: u16 = 240;
 /// Panel height in pixels.
-pub const HEIGHT: u16 = 320;
+pub const HEIGHT: u16 = 240;
 
 /// Requested SPI clock: `clk_peri` / 2 = 62.5 MHz on a 125 MHz RP2040.
 ///

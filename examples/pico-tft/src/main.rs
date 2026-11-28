@@ -1,4 +1,4 @@
-//! RP2040 / RP2350 firmware example: `utsuroui` on a 240x320 ST7789 panel.
+//! RP2040 / RP2350 firmware example: `utsuroui` on a 240x240 ST7789 panel.
 //!
 //! Wiring and clock notes live in `docs/HARDWARE.md`; the layout is the same on
 //! both chips (GP18/GP19 SPI, GP16 CS, GP17 DC, GP20 RST, GP21 BL, GP14/GP15
@@ -58,7 +58,7 @@ const STRIP_BYTES: usize = W as usize * BAND_H as usize * 2;
 
 static EVENTS: Channel<CriticalSectionRawMutex, Event, EVENT_QUEUE> = Channel::new();
 static LATENCY: Watch<CriticalSectionRawMutex, u16, LATENCY_SLOTS> = Watch::new();
-static STRIPS: StaticCell<[u8; 2 * STRIP_BYTES]> = StaticCell::new();
+static BUFFERS: StaticCell<utsuroui::BandBuffers<STRIP_BYTES>> = StaticCell::new();
 static CORE1_STACK: StaticCell<Stack<4096>> = StaticCell::new();
 
 /// Optional tear-effect gate: waits for the panel's TE rising edge before each
@@ -133,16 +133,14 @@ async fn run_ui<S: BandSink>(mut sink: S) {
     let mut app = DemoApp::new();
     let mut events = EVENTS.receiver();
     let mut latency = LATENCY.receiver().expect("latency watch has a receiver");
-    let strips = STRIPS.init([0u8; 2 * STRIP_BYTES]);
-    let (band_a, band_b) = strips.split_at_mut(STRIP_BYTES);
+    let buffers = BUFFERS.init(utsuroui::BandBuffers::new());
 
-    let cfg = UiConfig::new(RenderCfg::new(utsuroui::SCREEN, BAND_H), 22_000);
+    let cfg = UiConfig::new(RenderCfg::new(utsuroui_demo::style::SCREEN, BAND_H), 22_000);
 
     if let Err(error) = utsuroui::embassy_task::ui_task(
         &mut app,
         &mut sink,
-        band_a,
-        band_b,
+        buffers,
         &mut events,
         &mut latency,
         cfg,

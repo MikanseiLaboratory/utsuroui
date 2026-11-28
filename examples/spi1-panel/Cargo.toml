@@ -1,6 +1,6 @@
 [package]
 name = "spi1-panel"
-description = "240x320 ST7789 on SPI1 with an 8-key front panel"
+description = "240x240 ST7789 on SPI1 with an 8-key front panel"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

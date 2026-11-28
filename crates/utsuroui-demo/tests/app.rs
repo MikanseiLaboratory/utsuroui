@@ -147,16 +147,14 @@ fn crossfade_reports_alpha_and_paints_under() {
     assert!(alpha > 120 && alpha < 135, "alpha = {alpha}");
 
     let mut frame = vec![0u8; utsuroui_demo::render::FRAME_LEN];
-    let mut band_a = vec![0u8; utsuroui_demo::render::BAND_LEN];
-    let mut band_b = vec![0u8; utsuroui_demo::render::BAND_LEN];
+    let mut buffers = utsuroui_demo::render::BandBuf::new();
     let stats = pollster::block_on(utsuroui_demo::render::render_frame(
         &app,
         90_000,
         &mut frame,
-        &mut band_a,
-        &mut band_b,
+        &mut buffers,
     ));
-    assert!(stats.bytes >= 240 * 320 * 2);
+    assert!(stats.bytes >= 240 * 240 * 2);
     // The blend of menu and measure is neither pure black nor pure white.
     assert!(frame.iter().any(|b| *b != 0));
 }

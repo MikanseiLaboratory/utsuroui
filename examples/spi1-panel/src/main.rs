@@ -1,4 +1,4 @@
-//! `utsuroui` on a 240x320 ST7789 panel wired to **SPI1**, with an 8-key
+//! `utsuroui` on a 240x240 ST7789 panel wired to **SPI1**, with an 8-key
 //! front panel.
 //!
 //! Panel: SCK GP14, MOSI GP11, CS GP13, DC GP22, RST GP27, BL GP28.
@@ -54,7 +54,7 @@ const STRIP_BYTES: usize = W as usize * BAND_H as usize * 2;
 
 static EVENTS: Channel<CriticalSectionRawMutex, Event, EVENT_QUEUE> = Channel::new();
 static LATENCY: Watch<CriticalSectionRawMutex, u16, LATENCY_SLOTS> = Watch::new();
-static STRIPS: StaticCell<[u8; 2 * STRIP_BYTES]> = StaticCell::new();
+static BUFFERS: StaticCell<utsuroui::BandBuffers<STRIP_BYTES>> = StaticCell::new();
 static CORE1_STACK: StaticCell<Stack<4096>> = StaticCell::new();
 
 #[embassy_executor::main]
@@ -67,9 +67,8 @@ async fn main(spawner: Spawner) {
     let prev = Input::new(p.PIN_9, Pull::Up);
     let input1 = Input::new(p.PIN_1, Pull::Up);
     let back = Input::new(p.PIN_26, Pull::Up);
-    spawner.spawn(
-        input::task(menu, prev, input1, back, EVENTS.sender()).expect("spawn input task"),
-    );
+    spawner
+        .spawn(input::task(menu, prev, input1, back, EVENTS.sender()).expect("spawn input task"));
 
     // Core 1: measurement only.
     let latency_sender = LATENCY.sender();
@@ -95,16 +94,14 @@ async fn run_ui<S: BandSink>(mut sink: S) {
     let mut app = DemoApp::new();
     let mut events = EVENTS.receiver();
     let mut latency = LATENCY.receiver().expect("latency watch has a receiver");
-    let strips = STRIPS.init([0u8; 2 * STRIP_BYTES]);
-    let (band_a, band_b) = strips.split_at_mut(STRIP_BYTES);
+    let buffers = BUFFERS.init(utsuroui::BandBuffers::new());
 
-    let cfg = UiConfig::new(RenderCfg::new(utsuroui::SCREEN, BAND_H), 22_000);
+    let cfg = UiConfig::new(RenderCfg::new(utsuroui_demo::style::SCREEN, BAND_H), 22_000);
 
     if let Err(error) = utsuroui::embassy_task::ui_task(
         &mut app,
         &mut sink,
-        band_a,
-        band_b,
+        buffers,
         &mut events,
         &mut latency,
         cfg,

@@ -1,6 +1,6 @@
 [package]
 name = "pico-tft"
-description = "RP2040/RP2350 firmware example: utsuroui on a 240x320 ST7789 panel"
+description = "RP2040/RP2350 firmware example: utsuroui on a 240x240 ST7789 panel"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

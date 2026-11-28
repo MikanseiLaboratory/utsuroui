@@ -2,7 +2,7 @@
 //!
 //! The framework deliberately uses `i16`/`u16` coordinates instead of the
 //! `i32`/`u32` of `embedded-graphics`: on a small core every multiplication and
-//! clamp matters, and a 240x320 panel never needs more than a few hundred
+//! clamp matters, and a 240x240 panel never needs more than a few hundred
 //! pixels. Conversion to `embedded-graphics` types happens at the draw calls.
 
 use embedded_graphics::geometry::Point as EgPoint;

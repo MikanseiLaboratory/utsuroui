@@ -31,6 +31,7 @@ portable-atomic.workspace = true
 
 [features]
 default = ["rp2040"]
+
 rp2040 = ["embassy-rp/rp2040", "embassy-rp/rt", "embassy-rp/time-driver", "embassy-rp/critical-section-impl"]
 
 [lints]

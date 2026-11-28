@@ -14,33 +14,26 @@ use utsuroui::dirty::Dirty;
 use utsuroui::event::Event;
 use utsuroui::flush::{RenderCfg, flush};
 
-const W: u16 = 240;
-const H: u16 = 320;
+const W: u16 = scenes::W;
+const H: u16 = scenes::H;
 const BAND_H: u16 = 16;
 const BAND_LEN: usize = W as usize * BAND_H as usize * 2;
 const FRAME_LEN: usize = W as usize * H as usize * 2;
 const STEP_US: u64 = 16_000;
 
 fn render(app: &scenes::Showcase, dirty: &Dirty, now: u64, frame: &mut [u8]) {
-    let cfg = RenderCfg::new(utsuroui::SCREEN, BAND_H);
-    let mut band_a = vec![0u8; BAND_LEN];
-    let mut band_b = vec![0u8; BAND_LEN];
+    let cfg = RenderCfg::new(
+        utsuroui::geom::Rect::new(0, 0, scenes::W, scenes::H),
+        BAND_H,
+    );
+    let mut buffers = utsuroui::BandBuffers::<BAND_LEN>::new();
     let mut sink = MemorySink::new(frame, W);
-    pollster::block_on(flush(
-        app,
-        &mut sink,
-        dirty,
-        now,
-        &mut band_a,
-        Some(&mut band_b),
-        &cfg,
-    ))
-    .unwrap();
+    pollster::block_on(flush(app, &mut sink, dirty, now, &mut buffers, &cfg)).unwrap();
 }
 
 fn check_scene(index: usize, name: &str) {
     let mut app = scenes::Showcase::new();
-    let mut dirty = Dirty::new(utsuroui::SCREEN);
+    let mut dirty = Dirty::new(utsuroui::geom::Rect::new(0, 0, scenes::W, scenes::H));
     for _ in 0..index {
         app.event(&Event::Next, 0, &mut dirty);
     }
@@ -60,7 +53,7 @@ fn check_scene(index: usize, name: &str) {
         }
 
         let mut reference = vec![0u8; FRAME_LEN];
-        let mut full = Dirty::new(utsuroui::SCREEN);
+        let mut full = Dirty::new(utsuroui::geom::Rect::new(0, 0, scenes::W, scenes::H));
         full.mark_full();
         render(&app, &full, now, &mut reference);
 
@@ -91,7 +84,7 @@ fn check_scene(index: usize, name: &str) {
             app.event(&Event::Select, now, &mut dirty); // pause
             app.event(&Event::Select, now, &mut dirty); // resume
             dirty.clear();
-            let mut full = Dirty::new(utsuroui::SCREEN);
+            let mut full = Dirty::new(utsuroui::geom::Rect::new(0, 0, scenes::W, scenes::H));
             full.mark_full();
             render(&app, &full, now, &mut frame);
         }

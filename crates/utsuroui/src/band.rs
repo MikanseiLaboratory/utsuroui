@@ -53,6 +53,58 @@ impl<T: BandSink + ?Sized> BandSink for &mut T {
     }
 }
 
+/// The RAM the renderer paints bands into.
+///
+/// Two output buffers let the transport send one band while the renderer fills
+/// the other; the third (`under`) is only touched while a crossfade paints the
+/// outgoing screen, and is never sent.
+///
+/// Size it once from [`RenderCfg::band_buffer_len`](crate::flush::RenderCfg::band_buffer_len)
+/// and keep it in a `StaticCell` on firmware:
+///
+/// ```ignore
+/// static BUFFERS: StaticCell<BandBuffers<{ 240 * 16 * 2 }>> = StaticCell::new();
+/// ```
+///
+/// On the host a stack value is fine.
+pub struct BandBuffers<const LEN: usize> {
+    out: [[u8; LEN]; 2],
+    under: [u8; LEN],
+}
+
+impl<const LEN: usize> Default for BandBuffers<LEN> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl<const LEN: usize> BandBuffers<LEN> {
+    /// Zeroed buffers.
+    pub const fn new() -> Self {
+        Self {
+            out: [[0; LEN]; 2],
+            under: [0; LEN],
+        }
+    }
+
+    /// Bytes in one buffer.
+    pub const fn len(&self) -> usize {
+        LEN
+    }
+
+    /// Whether the buffers hold no bytes.
+    pub const fn is_empty(&self) -> bool {
+        LEN == 0
+    }
+
+    /// Splits into the two output buffers and the crossfade buffer.
+    pub fn split(&mut self) -> (&mut [u8], &mut [u8], &mut [u8]) {
+        let Self { out, under } = self;
+        let [a, b] = out;
+        (&mut a[..], &mut b[..], &mut under[..])
+    }
+}
+
 /// A [`BandSink`] that copies bands into a full-frame RGB565 buffer.
 ///
 /// Used by the host renderer, golden-image tests and `no_std` snapshot code.

@@ -39,13 +39,13 @@ impl App for TextApp {
 fn u8g2_text_draws_pixels() {
     let app = TextApp;
     let mut frame = vec![0u8; W as usize * H as usize * 2];
-    let mut band = vec![0u8; W as usize * 16 * 2];
+    let mut buffers = utsuroui::BandBuffers::<{ W as usize * 16 * 2 }>::new();
     let mut dirty = Dirty::new(Rect::new(0, 0, W, H));
     dirty.mark_full();
     let cfg = RenderCfg::new(Rect::new(0, 0, W, H), 16);
     {
         let mut sink = MemorySink::new(&mut frame, W);
-        pollster::block_on(flush(&app, &mut sink, &dirty, 0, &mut band, None, &cfg)).unwrap();
+        pollster::block_on(flush(&app, &mut sink, &dirty, 0, &mut buffers, &cfg)).unwrap();
     }
     let non_black = frame.chunks_exact(2).filter(|px| px != &[0, 0]).count();
     assert!(

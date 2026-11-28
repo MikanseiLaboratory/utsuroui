@@ -6,11 +6,12 @@ example の README と `src/panel.rs` を確認すること。`examples/anim-sho
 
 | example | 想定ハード | パネル | バス |
 |---|---|---|---|
-| `examples/pico-tft` | Raspberry Pi Pico / Pico 2 | 240×320 ST7789 | SPI0 |
-| `examples/spi1-panel` | GPIO を下記のとおり配線した機器 | 240×320 ST7789（反転） | **SPI1** |
+| `examples/pico-tft` | Raspberry Pi Pico / Pico 2 | 240×240 ST7789 | SPI0 |
+| `examples/spi1-panel` | GPIO を下記のとおり配線した機器 | 240×240 ST7789（反転） | **SPI1** |
 
 `spi1-panel` は特定の基板を前提にしない。必要なのは下の GPIO を揃えることだけで、
-他のピンや周辺チップには触らない。
+他のピンや周辺チップには触らない。`anim-showcase` と `gui-showcase` は同じ配線を
+使う（パネル 6 本 + キー 4 本）。
 
 ## Pico / Pico 2（`examples/pico-tft`）
 
@@ -26,7 +27,7 @@ example の README と `src/panel.rs` を確認すること。`examples/anim-sho
 | Button A | GP14 | GND へ短絡、内部プルアップ |
 | Button B | GP15 | GND へ短絡、内部プルアップ |
 
-- パネルは 240×320 RGB565、ST7789（既定）または ILI9341。
+- パネルは 240×240 RGB565、ST7789（既定）または ILI9341。
   ILI9341 にする場合は `examples/pico-tft/src/panel.rs` のモデルと `Panel` 型を
   `ILI9341Rgb565` に差し替える。
 - 3.3 V ロジック。5 V トレラントでないモジュールはレベルシフトすること。
@@ -37,7 +38,7 @@ example の README と `src/panel.rs` を確認すること。`examples/anim-sho
 
 ## SPI1 パネル + 8 キー（`examples/spi1-panel`）
 
-### ディスプレイ（ST7789 240×320、反転、SPI1）
+### ディスプレイ（ST7789 240×240、反転、SPI1）
 
 | 信号 | GPIO |
 |---|---|
@@ -64,14 +65,30 @@ SPI1 を最大 **62.5 MHz**（`clk_peri` / 2）で使う。`panel::SPI_HZ` で�
 未使用のキー: INPUT 2–4 = GP2–GP4、NEXT = GP10、SHIFT = GP15。
 LED（GP25）は UI 起動後に High。
 
+## 実測: クロックとフレームレート
+
+RP2040 の実機で読んだ値（`probe-rs read`、SPI1 パネル + キーの example）:
+
+| 項目 | 値 | 根拠 |
+|---|---|---|
+| clk_sys | **125 MHz** | PLL_SYS 1500 MHz（FBDIV=125）/ POSTDIV 6·2 |
+| コア電圧 | 1.10 V | VREG VSEL = 0xB |
+| clk_peri / SPI | 62.5 MHz | `SPI_HZ = 62_500_000` → CPSR 2, SCR 0 |
+| 波形シーンのフレーム | **17.5 ms（57 fps）** | フレームカウンタを SWD で 6 秒間サンプル |
+
+250 MHz も試した（PLL の VCO は 1500 MHz のまま POSTDIV 6·1、電圧 1.15 V、SPI は
+62.5 MHz を維持）が、**フレームレートは 57.0 fps で変わらなかった**。CPU ではなく
+SPI 転送とフレーム予算が律速なので、オーバークロックは採用していない（フラッシュの
+分周も embassy は調整しないため、XIP が 2 倍になるリスクだけが残る）。
+
 ## SPI クロック
 
 | SCK | 全画面 1 枚の理論 fps | 位置づけ |
 |---|---|---|
-| 15.15 MHz | 約 12.3 | ST7789V データシートの書き込み周期に近い安全側 |
-| 31.25 MHz（既定） | 約 25.4 | `clk_peri / 4`（clk_peri = 125 MHz） |
-| 40 MHz | 約 32.6 | モジュール依存。**未保証** |
-| 62.5 MHz | 約 50.9 | 配線が短くモジュールが耐える場合のみ |
+| 15.15 MHz | 約 16.4 | ST7789V データシートの書き込み周期に近い安全側 |
+| 31.25 MHz | 約 33.9 | `clk_peri / 4`（clk_peri = 125 MHz、パネルが 62.5 MHz に耐えない場合の退避先） |
+| 40 MHz | 約 43.4 | モジュール依存。**未保証** |
+| 62.5 MHz（既定） | 約 67.8 | 配線が短くモジュールが耐える場合のみ |
 
 `panel::SPI_HZ` を書き換えてビルドし、必ず実機でノイズ・飛び・色ずれを確認する。
 ILI9341 は公式書き込み周期がさらに遅い可能性がある。

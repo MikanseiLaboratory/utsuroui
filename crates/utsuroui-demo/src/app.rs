@@ -268,7 +268,7 @@ impl DemoApp {
             ACCENT,
         );
         let right = origin.x + W as i16 - 12;
-        cx.text_right("240x320", right, origin.y + 12, TextStyle::Small, DIM);
+        cx.text_right("240x240", right, origin.y + 12, TextStyle::Small, DIM);
         cx.hline(
             origin.y + (HEADER_H as i16 - 3),
             origin.x + MARGIN,

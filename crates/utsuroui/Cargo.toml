@@ -1,6 +1,6 @@
 [package]
 name = "utsuroui"
-description = "Dirty-rect GUI for 240x320 SPI TFTs: no_std, no-alloc, embedded-graphics + Embassy"
+description = "Dirty-rect GUI for 240x240 SPI TFTs: no_std, no-alloc, embedded-graphics + Embassy"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -15,8 +15,10 @@ categories = ["embedded", "no-std", "graphics"]
 default = []
 # Adapter for `lcd-async` panels (`BandSink` implementation, model helpers).
 lcd = ["dep:lcd-async", "dep:embedded-hal"]
-# Embassy `ui_task` frame scheduler (embassy-sync / embassy-time / embassy-futures).
-embassy = ["dep:embassy-sync", "dep:embassy-time", "dep:embassy-futures"]
+# Pipelined paint/transfer overlap (embassy-sync channels + embassy-futures join).
+pipeline = ["dep:embassy-sync", "dep:embassy-futures"]
+# Embassy `ui_task` frame scheduler (adds the time driver dependency).
+embassy = ["pipeline", "dep:embassy-time"]
 # Optional U8g2 font backend. Fonts carry their own licenses; the demo and the
 # firmware use the embedded-graphics fonts only.
 u8g2 = ["dep:u8g2-fonts"]
@@ -34,6 +36,8 @@ embassy-futures = { workspace = true, optional = true }
 
 [dev-dependencies]
 pollster.workspace = true
+# Host tests that link `embassy-sync` need a critical-section implementation.
+critical-section = { workspace = true, features = ["std"] }
 
 [lints]
 workspace = true

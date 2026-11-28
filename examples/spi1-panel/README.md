@@ -1,12 +1,12 @@
-# spi1-panel — 240x320 ST7789 on SPI1, with an 8-key front panel
+# spi1-panel — 240x240 ST7789 on SPI1, with an 8-key front panel
 
-Runs the `utsuroui` demo on a 240x320 ST7789 panel wired to **SPI1**, with four
+Runs the `utsuroui` demo on a 240x240 ST7789 panel wired to **SPI1**, with four
 front-panel keys. Nothing here is specific to a board: only the GPIO numbers
 below matter.
 
 ## Wiring
 
-### Display (ST7789, 240x320, inverted module, SPI1, mode 0)
+### Display (ST7789, 240x240, inverted module, SPI1, mode 0)
 
 | Signal | GPIO |
 |---|---|
@@ -46,6 +46,6 @@ probe-rs run --chip rp2040 --protocol swd --speed 100
 
 ## Layout
 
-The panel is 240x320, so the shared demo (`utsuroui-demo`) fits without
+The panel is 240x240, so the shared demo (`utsuroui-demo`) fits without
 changes: menu, measurement, settings and about screens plus fade, slide and
 crossfade transitions.

@@ -1,6 +1,6 @@
 //! # utsuroui
 //!
-//! A small, allocation-free GUI for 240x320 RGB565 SPI TFTs (ST7789 / ILI9341)
+//! A small, allocation-free GUI for 240x240 RGB565 SPI TFTs (ST7789 / ILI9341)
 //! on any Embassy target that can drive a display and provide timers.
 //!
 //! The core has no HAL dependency: it needs `embedded-graphics` for drawing and,
@@ -61,12 +61,14 @@ pub mod u8g2;
 #[cfg(feature = "embassy")]
 pub mod embassy_task;
 
-pub use anim::{Easing, Q16, Tween, ease, lerp_i32};
+pub use anim::{Easing, Orbit, Q16, Tween, ease, lerp_i32, wave};
 pub use app::App;
-pub use band::{BandSink, MemorySink, blend_band};
+pub use band::{BandBuffers, BandSink, MemorySink, blend_band};
 pub use color::{BLACK, DARK_GRAY, GRAY, WHITE, YELLOW, be_bytes, blend, darken, lerp};
 pub use dirty::{Dirty, DirtyList, MAX_DIRTY};
 pub use event::{Event, EventOut};
+#[cfg(feature = "pipeline")]
+pub use flush::flush_pipelined;
 pub use flush::{FlushStats, RenderCfg, flush};
 pub use focus::Focus;
 pub use geom::{Point, Rect, Size};
@@ -77,9 +79,10 @@ pub use text::{
     FORMAT_BUF, TextStyle, format_ms_x10, format_percent, format_u16, format_x10, measure,
 };
 pub use widget::{
-    Background, CrossAlign, Edges, Expanded, Fixed, HStack, MainAlign, MeasureCx, Padding, VStack,
-    Widget,
+    Background, CrossAlign, Edges, Expanded, Fixed, HStack, Highlight, HighlightState, MainAlign,
+    Marquee, MarqueeState, MeasureCx, Padding, Slider, SliderState, Toast, ToastState, Toggle,
+    ToggleState, VStack, Widget,
 };
 
 /// The nominal screen size of the reference device.
-pub const SCREEN: Rect = Rect::new(0, 0, 240, 320);
+pub const SCREEN: Rect = Rect::new(0, 0, 240, 240);
