@@ -5,13 +5,17 @@
 A tiny, allocation-free GUI for 240x320 RGB565 SPI TFTs (ST7789 / ILI9341) on
 any Embassy target, built on `embedded-graphics`.
 
+**No framebuffer, no heap, no blocking render loop.** Only dirty rectangles are
+painted and sent, as 16-row bands, and the panel transfer overlaps the next
+band's painting. A 240x320 frame would be 153.6 KiB; the renderer needs three
+7.5 KiB bands instead.
+
 The core depends only on `embedded-graphics` (drawing) and, for the scheduler,
 `embassy-sync` / `embassy-time`; there is no HAL in it. Bring any panel by
 implementing `BandSink`, or use the bundled `lcd-async` adapter. The example
 firmwares target RP2040 and RP2350 because that is what they were tested on.
 
-Only dirty rectangles are painted and sent, as 16-row bands. Animation is
-fixed-point tweening with continuous retargeting.
+Animation is fixed-point tweening with continuous retargeting.
 
 | Menu | Measure |
 |---|---|
@@ -50,7 +54,25 @@ fixed-point tweening with continuous retargeting.
   throttles it to 30 Hz.
 - **Host-tested** — 8 PNG goldens, byte-order and band-splitting checks,
   frame-budget tests, plus `thumbv6m` / `thumbv8m.main` cross-checks.
-- **Size** — ~50 KiB flash / ~21 KiB RAM for the demo firmware (release, defmt).
+- **Size** — ~50 KiB flash / ~25 KiB RAM for the demos (release, defmt, band
+  buffers included).
+
+## What makes it different
+
+These are properties of the design, not features tied to one panel or board.
+
+| Property | What it means for your firmware |
+|---|---|
+| **No framebuffer** | The screen is painted as 16-row bands into three 7.5 KiB buffers; one full 240x320 frame would be 153.6 KiB. Dirty rectangles decide what is sent, so a highlight move costs ~25 KiB. |
+| **No heap, no `dyn`, no `unsafe`** | Widgets are values and state is a plain struct. Layout is static, RAM is known at link time, and the core compiles with `#![forbid(unsafe_code)]`. |
+| **Async, not a render loop** | `ui_task` is an Embassy task. A full-screen redraw never stalls input, and the panel transfer runs while the CPU paints the next band. |
+| **Animation as data** | Motion is an integer `Tween` with continuous retargeting: pressing a button mid-slide bends the path instead of restarting it. Animated widgets report the rectangles they invalidated, and an idle screen means no SPI traffic. |
+| **Invariants, not screenshots** | CI renders committed golden images through the real band pipeline and asserts that an incremental repaint is byte-identical to a full repaint — the failure mode that makes dirty-rect UIs look broken on hardware. |
+| **One seam to the hardware** | The renderer sees a single `BandSink::write_band`. SPI with DMA, a parallel bus and an in-memory buffer are interchangeable, and the core needs nothing but `embedded-graphics`. |
+| **Measured, and small** | On an RP2040 at 62.5 MHz SPI: 49 KiB per full-width scrolling frame at ~57 fps, ~50 KiB flash and ~25 KiB RAM. |
+
+The scope is one 240x320 panel and a few buttons. The API is small on purpose:
+there is no theme engine, no layout DSL and no widget catalogue to learn.
 
 ## Workspace
 
