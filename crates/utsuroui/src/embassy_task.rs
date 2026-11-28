@@ -81,6 +81,8 @@ where
 {
     let mut dirty = Dirty::new(cfg.render.screen);
     dirty.mark_full();
+    // Next frame's cadence deadline; 0 means "no cadence yet".
+    let mut next_frame_us = 0u64;
 
     loop {
         let now_us = embassy_time::Instant::now().as_micros();
@@ -118,20 +120,34 @@ where
         }
 
         if animating {
-            // One deadline for the next frame: the frame budget counted from the
-            // start of this frame, or the next tween end if that is sooner. The
-            // wait ends early when a button is pressed.
-            let mut deadline = now_us.saturating_add(cfg.frame_budget_us as u64);
+            // Frames are scheduled against a cadence, not against "now": waking
+            // a little late must not shift every later frame, or the loop settles
+            // a few percent below the requested rate. If a frame overruns, the
+            // cadence skips ahead instead of trying to catch up.
+            let budget = cfg.frame_budget_us as u64;
+            if next_frame_us == 0 {
+                next_frame_us = now_us.saturating_add(budget);
+            }
+            if next_frame_us <= now_us {
+                // Overran the budget: skip ahead rather than trying to catch up.
+                next_frame_us = now_us.saturating_add(budget);
+            }
+
+            // Wake early when a button is pressed or a tween wants attention.
+            let mut sleep_to = next_frame_us;
             if let Some(wakeup) = app.next_wakeup_us() {
-                deadline = deadline.min(wakeup);
+                sleep_to = sleep_to.min(wakeup);
             }
             let now = embassy_time::Instant::now().as_micros();
-            if deadline > now {
-                let timer = Timer::after(Duration::from_micros(deadline - now));
+            if sleep_to > now {
+                let timer = Timer::after(Duration::from_micros(sleep_to - now));
                 if let Either::First(event) = select(events.receive(), timer).await {
                     app.event(&event, embassy_time::Instant::now().as_micros(), &mut dirty);
                 }
             }
+        } else {
+            // Idle: start a fresh cadence when work appears again.
+            next_frame_us = 0;
         }
     }
 }

@@ -49,9 +49,27 @@ static EVENTS: Channel<CriticalSectionRawMutex, Event, EVENT_QUEUE> = Channel::n
 static LATENCY: Watch<CriticalSectionRawMutex, u16, LATENCY_SLOTS> = Watch::new();
 static BUFFERS: StaticCell<utsuroui::BandBuffers<STRIP_BYTES>> = StaticCell::new();
 
+/// System clock.
+///
+/// The default is the RP2040's rated 125 MHz. The `oc250` feature selects
+/// 250 MHz: `system_freq` picks the same 1500 MHz VCO with post-divider 6/1 and
+/// raises the core voltage to 1.15 V, and `clk_peri` follows to 250 MHz, which
+/// keeps the panel's SPI divider at exactly 62.5 MHz. The XIP flash divider is
+/// not retuned, so stability is board-dependent.
+fn clock_config() -> embassy_rp::config::Config {
+    #[cfg(feature = "oc250")]
+    {
+        let clocks = embassy_rp::clocks::ClockConfig::system_freq(250_000_000)
+            .expect("250 MHz clock configuration");
+        return embassy_rp::config::Config::new(clocks);
+    }
+    #[cfg(not(feature = "oc250"))]
+    embassy_rp::config::Config::default()
+}
+
 #[embassy_executor::main]
 async fn main(spawner: Spawner) {
-    let p = embassy_rp::init(Default::default());
+    let p = embassy_rp::init(clock_config());
     info!("gui-showcase starting");
 
     let menu = Input::new(p.PIN_8, Pull::Up);

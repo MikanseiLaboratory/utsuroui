@@ -31,6 +31,10 @@ portable-atomic.workspace = true
 
 [features]
 default = ["rp2040"]
+# 250 MHz experiment: doubles the core clock, keeps the panel SPI at 62.5 MHz.
+# The flash clock is not re-divided, so verify stability on the board.
+oc250 = []
+
 rp2040 = ["embassy-rp/rp2040", "embassy-rp/rt", "embassy-rp/time-driver", "embassy-rp/critical-section-impl"]
 
 [lints]

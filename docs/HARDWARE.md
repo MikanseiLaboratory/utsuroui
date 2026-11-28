@@ -65,6 +65,23 @@ SPI1 を最大 **62.5 MHz**（`clk_peri` / 2）で使う。`panel::SPI_HZ` で�
 未使用のキー: INPUT 2–4 = GP2–GP4、NEXT = GP10、SHIFT = GP15。
 LED（GP25）は UI 起動後に High。
 
+## 実測: クロックとフレームレート
+
+RP2040 の実機で読んだ値（`probe-rs read`、SPI1 パネル + キーの example）:
+
+| 項目 | 値 | 根拠 |
+|---|---|---|
+| clk_sys | **125 MHz** | PLL_SYS 1500 MHz（FBDIV=125）/ POSTDIV 6·2 |
+| コア電圧 | 1.10 V | VREG VSEL = 0xB |
+| clk_peri / SPI | 62.5 MHz | `SPI_HZ = 62_500_000` → CPSR 2, SCR 0 |
+| 波形シーンのフレーム | **17.5 ms（57 fps）** | フレームカウンタを SWD で 6 秒間サンプル |
+
+`oc250` feature（250 MHz 実験）も試した: PLL は同じ 1500 MHz のまま POSTDIV 6·1、
+電圧は 1.15 V に上がり、SPI は 62.5 MHz を維持する。**フレームレートは 57.0 fps で
+変わらなかった**（CPU ではなく SPI 転送とフレーム予算が律速）。フラッシュの分周は
+embassy が調整しないため、250 MHz は XIP が 2 倍になり基板依存のリスクがある。
+既定は 125 MHz のままにしている。
+
 ## SPI クロック
 
 | SCK | 全画面 1 枚の理論 fps | 位置づけ |
